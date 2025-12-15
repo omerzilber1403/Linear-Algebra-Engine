@@ -5,14 +5,24 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 public class SharedVector {
 
-    private double[] vector;
-    private VectorOrientation orientation;
+    private double[] vector; // [1,2,3]
+    private VectorOrientation orientation; // COLUMN_MAJOR
     private ReadWriteLock lock = new java.util.concurrent.locks.ReentrantReadWriteLock();
 
     public SharedVector(double[] vector, VectorOrientation orientation) {
         // TODO: store vector data and its orientation
-        this.vector = vector;
-        this.orientation = orientation;
+        this.vector = vector.clone();
+        if (orientation == null) {
+            throw new IllegalArgumentException("Orientation cannot be null.");
+        }
+        if (orientation != VectorOrientation.ROW_MAJOR && orientation != VectorOrientation.COLUMN_MAJOR) {
+            throw new IllegalArgumentException("Invalid orientation.");
+        }
+        if (orientation == VectorOrientation.ROW_MAJOR) {
+            this.orientation = VectorOrientation.ROW_MAJOR;
+        } else {
+            this.orientation = VectorOrientation.COLUMN_MAJOR;
+        }
     }
 
     public double get(int index) {
@@ -86,8 +96,14 @@ public class SharedVector {
             if (other.length() != this.length()) {
                 throw new IllegalArgumentException("Vectors must be of the same length to add.");
             }
+            if (this.orientation != other.getOrientation()) {
+                throw new IllegalArgumentException(
+                    "Vectors must have the same orientation to add. " +
+                    "This: " + this.orientation + ", Other: " + other.getOrientation()
+                );
+            }
             for (int i = 0; i < vector.length; i++) {
-                vector[i] += other.get(i);
+                vector[i] += other.vector[i];
             }
         } finally {
             other.readUnlock();
@@ -115,14 +131,12 @@ public class SharedVector {
             if (other.length() != this.length()) {
                 throw new IllegalArgumentException("Vectors must be of the same length to compute dot product.");
             }
-            if (this.orientation != other.getOrientation()) {
-                throw new IllegalArgumentException(
-                    "Vectors must have the same orientation to add. " +
-                    "This: " + this.orientation + ", Other: " + other.getOrientation());
+            if (this.orientation == other.getOrientation()) {
+                throw new IllegalArgumentException("Vectors must be of different orientations");
             }
             double result = 0.0;
             for (int i = 0; i < vector.length; i++) {
-                result += this.vector[i] * other.get(i);
+                result += this.vector[i] * other.vector[i];
             }
             return result;
         } finally {
@@ -133,5 +147,32 @@ public class SharedVector {
 
     public void vecMatMul(SharedMatrix matrix) {
         // TODO: compute row-vector × matrix
+        lock.writeLock().lock();
+        for (int i = 0; i < matrix.length(); i++) {
+            matrix.get(i).readLock();
+        }
+        try {
+            if (this.orientation != VectorOrientation.ROW_MAJOR) {
+                throw new IllegalArgumentException("vecMatMul requires a row vector (ROW_MAJOR)");
+            }
+            if (matrix.getOrientation() == VectorOrientation.COLUMN_MAJOR) {
+                if (matrix.get(0).length() != vector.length) {
+                    throw new IllegalArgumentException("Vector multiplication need to be of the same dimensions");
+                }
+                double[] newVector = new double[vector.length];
+                for (int i = 0; i <= matrix.length(); i++) {
+                    newVector[i] = this.dot(matrix.get(i));
+                }
+                this.vector = newVector;
+            }
+            else if (matrix.getOrientation() == VectorOrientation.ROW_MAJOR) {
+                
+            }
+        } finally {
+            lock.writeLock().unlock();
+            for (int i = 0; i < matrix.length(); i++) {
+                matrix.get(i).readUnlock();
+            }
+        }
     }
 }
