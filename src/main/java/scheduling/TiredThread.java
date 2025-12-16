@@ -81,22 +81,66 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
        if (!alive.compareAndSet(true, false)){
         return;
        }
-       try {
-        handoff.put(POISON_PILL);
-       } catch (InterruptedException e) {
-        interrupt();
-       }
+       handoff.offer(POISON_PILL);
+       interrupt();
     }
 
     @Override
     public void run() {
-       // TODO
-       
+        // Start as idle
+        idleStartTime.set(System.nanoTime());
+
+        while (true) {
+            try {
+                // Block until a task is available
+                Runnable task = handoff.take();
+
+                // If we got a poison pill or shutdown was requested, exit
+                if (task == POISON_PILL || !alive.get()) {
+                    break;
+                }
+
+                // Transition to busy
+                busy.set(true);
+
+                // Account for idle time up to now
+                long idleStarted = idleStartTime.getAndSet(0);
+                if (idleStarted != 0) {
+                    timeIdle.addAndGet(System.nanoTime() - idleStarted);
+                }
+
+                // Execute task and account for used time
+                long start = System.nanoTime();
+                try {
+                    task.run();
+                } finally {
+                    long used = System.nanoTime() - start;
+                    timeUsed.addAndGet(used);
+
+                    // Transition back to idle
+                    busy.set(false);
+                    idleStartTime.set(System.nanoTime());
+                }
+            } catch (InterruptedException ie) {
+                // If interrupted during shutdown, exit; otherwise keep going
+                if (!alive.get()) {
+                    break;
+                }
+            }
+        }
+
+        // Finalize idle accounting if we exit while idle
+        if (!busy.get()) {
+            long idleStarted = idleStartTime.getAndSet(0);
+            if (idleStarted != 0) {
+                timeIdle.addAndGet(System.nanoTime() - idleStarted);
+            }
+        }
     }
 
     @Override
     public int compareTo(TiredThread o) {
-        // TODO
-        return 0;
+        //TODO
+        return Double.compare(fatigueFactor, o.getFatigue());
     }
 }
