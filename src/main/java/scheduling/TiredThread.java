@@ -57,6 +57,19 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
      */
     public void newTask(Runnable task) {
        // TODO
+       if (task == null) {
+        throw new IllegalArgumentException("No task to execute");
+       }
+       if (!alive.get()) {
+        throw new IllegalStateException("Worker is shutting down or has stopped");
+       }
+       if (busy.get()) {
+        throw new IllegalStateException("Worker is busy");
+       }
+       boolean flag = handoff.offer(task);
+       if (!flag) {
+        throw new IllegalStateException("Worker already assigned to a task");
+       }
     }
 
     /**
@@ -65,11 +78,20 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
      */
     public void shutdown() {
        // TODO
+       if (!alive.compareAndSet(true, false)){
+        return;
+       }
+       try {
+        handoff.put(POISON_PILL);
+       } catch (InterruptedException e) {
+        interrupt();
+       }
     }
 
     @Override
     public void run() {
        // TODO
+       
     }
 
     @Override

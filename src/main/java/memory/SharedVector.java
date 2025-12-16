@@ -147,32 +147,32 @@ public class SharedVector {
 
     public void vecMatMul(SharedMatrix matrix) {
         // TODO: compute row-vector × matrix
-        lock.writeLock().lock();
-        for (int i = 0; i < matrix.length(); i++) {
-            matrix.get(i).readLock();
+        
+        // Validate first (no locks needed for immutable fields)
+        if (this.orientation != VectorOrientation.ROW_MAJOR) {
+            throw new IllegalArgumentException("vector is not a row major");
         }
+        
+        if (matrix.getOrientation() != VectorOrientation.COLUMN_MAJOR) {
+            throw new IllegalArgumentException("vecMatMul supports only COLUMN_MAJOR matrices");
+        }
+        
+        if (matrix.get(0).length() != this.length()) {
+            throw new IllegalArgumentException("the multiply is not defined");
+        }
+        
+        // Compute without locking this (dot() will lock this internally)
+        double[] newVector = new double[matrix.length()];
+        for (int i = 0; i < matrix.length(); i++) {
+            newVector[i] = this.dot(matrix.get(i));  // dot() locks this+column
+        }
+        
+        // Only lock for writing result
+        lock.writeLock().lock();
         try {
-            if (this.orientation != VectorOrientation.ROW_MAJOR) {
-                throw new IllegalArgumentException("vecMatMul requires a row vector (ROW_MAJOR)");
-            }
-            if (matrix.getOrientation() == VectorOrientation.COLUMN_MAJOR) {
-                if (matrix.get(0).length() != vector.length) {
-                    throw new IllegalArgumentException("Vector multiplication need to be of the same dimensions");
-                }
-                double[] newVector = new double[vector.length];
-                for (int i = 0; i <= matrix.length(); i++) {
-                    newVector[i] = this.dot(matrix.get(i));
-                }
-                this.vector = newVector;
-            }
-            else if (matrix.getOrientation() == VectorOrientation.ROW_MAJOR) {
-                
-            }
+            this.vector = newVector;
         } finally {
             lock.writeLock().unlock();
-            for (int i = 0; i < matrix.length(); i++) {
-                matrix.get(i).readUnlock();
-            }
         }
     }
 }
