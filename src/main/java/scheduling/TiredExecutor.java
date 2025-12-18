@@ -105,6 +105,20 @@ public class TiredExecutor {
 
     public synchronized String getWorkerReport() {
         // TODO: return readable statistics for each worker
-        return null;
+        StringBuilder sb = new StringBuilder();
+        for (TiredThread w : workers) {
+            sb.append("Worker ")
+            .append(w.getWorkerId())
+            .append(": busy=")
+            .append(w.isBusy())
+            .append(", used=")
+            .append(w.getTimeUsed())
+            .append(", idle=")
+            .append(w.getTimeIdle())
+            .append(", fatigue=")
+            .append(w.getFatigue())
+            .append("\n");
+        }
+        return sb.toString(); 
     }
 }

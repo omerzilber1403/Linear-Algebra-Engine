@@ -78,11 +78,8 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
        if (!alive.compareAndSet(true, false)){
         return;
        }
-       try {
-            handoff.put(POISON_PILL);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+       handoff.offer(POISON_PILL);     // ✓ Succeeds! (handoff is empty)
+       this.interrupt(); 
     }
 
     @Override
@@ -96,7 +93,7 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
                 Runnable task = handoff.take();
 
                 // If we got a poison pill or shutdown was requested, exit
-                if (task == POISON_PILL) {
+                if (task == POISON_PILL || !alive.get()) {
                     break;
                 }
 
