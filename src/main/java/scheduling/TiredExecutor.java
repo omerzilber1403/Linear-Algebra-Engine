@@ -27,42 +27,80 @@ public class TiredExecutor {
 
     public void submit(Runnable task) {
         // TODO
-
         if (task == null) {
             throw new IllegalArgumentException("task is null");
         }
-        final TiredThread currThread;
-        try {
-            currThread = idleMinHeap.take();
-        } catch ( InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("submit interrupted", e);
-        }
-        inFlight.incrementAndGet();
 
-        Runnable wrappedTask = () -> {
+        while (true) {
+            final TiredThread worker;
             try {
-                task.run();
-            } finally {
-                inFlight.decrementAndGet();
-                idleMinHeap.add(currThread);
+                worker = idleMinHeap.take(); 
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("submit interrupted", e);
             }
-        };
-        try {
-            currThread.newTask(wrappedTask);
-        } catch (Exception e) {
-            inFlight.decrementAndGet();
-            idleMinHeap.add(currThread);
-            throw e;
+
+            inFlight.incrementAndGet();
+
+            Runnable wrapped = () -> {
+                try {
+                    task.run();
+                } finally {
+                    idleMinHeap.add(worker);
+
+                    if (inFlight.decrementAndGet() == 0) {
+                        synchronized (this) {
+                            this.notifyAll();
+                        }
+                    }
+                }
+            };
+
+            try {
+                worker.newTask(wrapped);
+                return;                 
+            } catch (RuntimeException ex) {
+                idleMinHeap.add(worker);
+                if (inFlight.decrementAndGet() == 0) {
+                    synchronized (this) {
+                        this.notifyAll();
+                    }
+                }
+                throw ex;
+            }
         }
     }
 
     public void submitAll(Iterable<Runnable> tasks) {
         // TODO: submit tasks one by one and wait until all finish
+        if (tasks == null) {
+            throw new IllegalArgumentException("tasks is null");
+        }
+
+        for (Runnable t : tasks) {
+            submit(t);
+        }
+
+        synchronized (this) {
+            while (inFlight.get() > 0) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
     }
 
     public void shutdown() throws InterruptedException {
         // TODO
+        for (TiredThread worker : workers) {
+            worker.shutdown();
+        }
+        for (TiredThread worker : workers) {
+            worker.join();
+        }
+        idleMinHeap.clear();
     }
 
     public synchronized String getWorkerReport() {
