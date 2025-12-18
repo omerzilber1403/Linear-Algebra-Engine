@@ -63,9 +63,6 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
        if (!alive.get()) {
         throw new IllegalStateException("Worker is shutting down or has stopped");
        }
-       if (busy.get()) {
-        throw new IllegalStateException("Worker is busy");
-       }
        boolean flag = handoff.offer(task);
        if (!flag) {
         throw new IllegalStateException("Worker already assigned to a task");
@@ -81,8 +78,11 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
        if (!alive.compareAndSet(true, false)){
         return;
        }
-       handoff.offer(POISON_PILL);
-       interrupt();
+       try {
+            handoff.put(POISON_PILL);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override
@@ -96,7 +96,7 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
                 Runnable task = handoff.take();
 
                 // If we got a poison pill or shutdown was requested, exit
-                if (task == POISON_PILL || !alive.get()) {
+                if (task == POISON_PILL) {
                     break;
                 }
 
@@ -141,6 +141,6 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
     @Override
     public int compareTo(TiredThread o) {
         //TODO
-        return Double.compare(fatigueFactor, o.getFatigue());
+        return Double.compare(this.getFatigue(), o.getFatigue());
     }
 }
