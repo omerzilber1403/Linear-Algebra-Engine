@@ -4,6 +4,7 @@ import parser.*;
 import memory.*;
 import scheduling.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LinearAlgebraEngine {
@@ -14,6 +15,7 @@ public class LinearAlgebraEngine {
 
     public LinearAlgebraEngine(int numThreads) {
         // TODO: create executor with given thread count
+        executor = new TiredExecutor(numThreads);
     }
 
     public ComputationNode run(ComputationNode computationRoot) {
@@ -28,26 +30,77 @@ public class LinearAlgebraEngine {
 
     public List<Runnable> createAddTasks() {
         // TODO: return tasks that perform row-wise addition
-        return null;
+        if (leftMatrix == null || rightMatrix == null ||
+            leftMatrix.get(0).length() == 0 || rightMatrix.get(0).length() == 0 ||
+            leftMatrix.getOrientation() != VectorOrientation.ROW_MAJOR ||  rightMatrix.getOrientation() != VectorOrientation.ROW_MAJOR ||
+             leftMatrix.length() != rightMatrix.length()) {
+            throw new IllegalArgumentException("can't perform addition");
+        }
+
+        List<Runnable> tasks = new ArrayList<>();
+        for (int i = 0 ; i < leftMatrix.length(); i = i + 1) {
+            final int rowIndex = i;
+            tasks.add( () -> {
+                leftMatrix.get(rowIndex).add(rightMatrix.get(rowIndex));
+            } );
+        }
+        return tasks;
     }
 
     public List<Runnable> createMultiplyTasks() {
         // TODO: return tasks that perform row × matrix multiplication
-        return null;
+        if (leftMatrix == null || rightMatrix == null ||
+            leftMatrix.get(0).length() == 0 || rightMatrix.get(0).length() == 0 ||
+            leftMatrix.getOrientation() != VectorOrientation.ROW_MAJOR ||
+        (rightMatrix.getOrientation() == VectorOrientation.ROW_MAJOR && leftMatrix.get(0).length() != rightMatrix.length()) ||
+        (rightMatrix.getOrientation() == VectorOrientation.COLUMN_MAJOR && leftMatrix.get(0).length() != rightMatrix.get(0).length())) {
+            throw new IllegalArgumentException("can't perform multiplication");
+        }
+
+        List<Runnable> tasks = new ArrayList<>();
+        for (int i = 0 ; i < leftMatrix.length(); i = i + 1) {
+            final int rowIndex = i;
+            tasks.add( () -> {
+                leftMatrix.get(rowIndex).vecMatMul(rightMatrix);
+            });
+        }
+        return tasks;
     }
 
     public List<Runnable> createNegateTasks() {
         // TODO: return tasks that negate rows
-        return null;
+        if (leftMatrix == null || leftMatrix.get(0).length() == 0 
+         || leftMatrix.getOrientation() != VectorOrientation.ROW_MAJOR) {
+            throw new IllegalArgumentException("matrix is null or not valid");
+        }
+        List<Runnable> tasks = new ArrayList<>();
+        for (int i = 0 ; i < leftMatrix.length(); i = i + 1) {
+            final int rowIndex = i;
+            tasks.add( () -> {
+                leftMatrix.get(rowIndex).negate();
+            });
+        }
+        return tasks;
     }
 
     public List<Runnable> createTransposeTasks() {
         // TODO: return tasks that transpose rows
-        return null;
+        if (leftMatrix == null || leftMatrix.get(0).length() == 0 
+         || leftMatrix.getOrientation() != VectorOrientation.ROW_MAJOR ) {
+            throw new IllegalArgumentException("matrix is null or not valid");
+        }       
+        List<Runnable> tasks = new ArrayList<>();
+        for (int i = 0 ; i < leftMatrix.length(); i = i + 1) {
+            final int rowIndex = i;
+            tasks.add( () -> {
+                leftMatrix.get(rowIndex).transpose();
+            });
+        }
+        return tasks;
     }
 
     public String getWorkerReport() {
         // TODO: return summary of worker activity
-        return null;
+        return executor.getWorkerReport();
     }
 }
