@@ -59,32 +59,41 @@ public class SharedMatrix {
         }
         this.vectors = newVectors;  
     }
-
+    
     public void loadColumnMajor(double[][] matrix) {
         // TODO: replace internal data with new column-major matrix 
         if (matrix == null) {
-            throw new IllegalArgumentException("Input matrix is null.");
-        }  
-        if (matrix.length == 0) {
-            this.vectors = new SharedVector[0];
+            throw new IllegalArgumentException("matrix is null");
+        }
+        if (matrix.length == 0){
+            vectors = new SharedVector[0];
             return;
         }
         if (matrix[0] == null) {
-            throw new IllegalArgumentException("All columns must have the same length.");
+            throw new IllegalArgumentException("matrix row 0 is null");
         }
-        int colSize= matrix[0].length;
-        for ( int i = 1; i < matrix.length; i++ ) {
-            if (matrix[i] == null || matrix[i].length != colSize) {
-                throw new IllegalArgumentException("All columns must have the same length.");
+        int rows = matrix.length;
+        int cols = matrix[0].length; 
+        for (int i = 1; i < matrix.length; i++) {
+            if (matrix[i] == null) {
+                throw new IllegalArgumentException("matrix row " + i + " is null");
             }
-        }
-        SharedVector[] newVectors = new SharedVector[matrix.length];
-        for (int i = 0; i < matrix.length; i++) {
-            double[] clone = matrix[i].clone();
-            newVectors[i] = new SharedVector(clone, VectorOrientation.COLUMN_MAJOR);
-        }
-        this.vectors = newVectors;
+            if (matrix[i].length != cols) {
+                throw new IllegalArgumentException("matrix is not defined");
+            }
+        } 
+        SharedVector[] newVectors = new SharedVector[cols];
 
+        for (int c = 0; c < cols; c++) {
+            double[] col = new double[rows];
+
+            for (int r = 0; r < rows; r++) {
+                col[r] = matrix[r][c];
+            }
+
+            newVectors[c] = new SharedVector(col, VectorOrientation.COLUMN_MAJOR);
+        }
+        vectors = newVectors;     
     }
 
     public double[][] readRowMajor() {

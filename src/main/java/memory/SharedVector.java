@@ -11,6 +11,9 @@ public class SharedVector {
 
     public SharedVector(double[] vector, VectorOrientation orientation) {
         // TODO: store vector data and its orientation
+        if (vector == null) {
+            throw new IllegalArgumentException("vector is null");
+        }
         this.vector = vector.clone();
         if (orientation == null) {
             throw new IllegalArgumentException("Orientation cannot be null.");
@@ -147,30 +150,32 @@ public class SharedVector {
 
     public void vecMatMul(SharedMatrix matrix) {
         // TODO: compute row-vector × matrix
-        
-        // Validate first (no locks needed for immutable fields)
-        if (this.orientation != VectorOrientation.ROW_MAJOR) {
-            throw new IllegalArgumentException("vector is not a row major");
+        lock.readLock().lock();
+        double[] newVector;
+        try {
+            if (orientation != VectorOrientation.ROW_MAJOR ) {
+                throw new IllegalArgumentException ("vector is not a row major");
+            }  
+            if (matrix.getOrientation() != VectorOrientation.COLUMN_MAJOR) {
+                throw new IllegalArgumentException("vecMatMul supports only COLUMN_MAJOR matrices");
+            }
+            if (matrix.length() ==0 ) {
+                throw new IllegalArgumentException("matrix is empty");
+            }
+            if (matrix.get(0).length() != length()) {
+                throw new IllegalArgumentException("the multuply is not definded");
+            }
+            newVector = new double[matrix.length()];
+            for(int i = 0; i < matrix.length(); i++){
+                newVector[i] = this.dot(matrix.get(i)); 
+            }
+        } finally {
+            lock.readLock().unlock();
         }
-        
-        if (matrix.getOrientation() != VectorOrientation.COLUMN_MAJOR) {
-            throw new IllegalArgumentException("vecMatMul supports only COLUMN_MAJOR matrices");
-        }
-        
-        if (matrix.get(0).length() != this.length()) {
-            throw new IllegalArgumentException("the multiply is not defined");
-        }
-        
-        // Compute without locking this (dot() will lock this internally)
-        double[] newVector = new double[matrix.length()];
-        for (int i = 0; i < matrix.length(); i++) {
-            newVector[i] = this.dot(matrix.get(i));  // dot() locks this+column
-        }
-        
-        // Only lock for writing result
-        lock.writeLock().lock();
+        lock.writeLock().lock(); 
         try {
             this.vector = newVector;
+
         } finally {
             lock.writeLock().unlock();
         }

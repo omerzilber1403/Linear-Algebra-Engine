@@ -20,12 +20,52 @@ public class LinearAlgebraEngine {
 
     public ComputationNode run(ComputationNode computationRoot) {
         // TODO: resolve computation tree step by step until final matrix is produced
-        return null;
+        computationRoot.associativeNesting();
+        ComputationNode currNode = computationRoot.findResolvable();
+        while (currNode != null) {
+            loadAndCompute(currNode);
+            currNode = computationRoot.findResolvable();
+        }
+        return computationRoot;
     }
 
     public void loadAndCompute(ComputationNode node) {
         // TODO: load operand matrices
-        // TODO: create compute tasks & submit tasks to executor
+        // TODO: create compute tasks & submit tasks to executor;   
+        if (node == null) {
+            throw new IllegalArgumentException("ComputationNode is null");
+        }
+        List<Runnable> tasks = new ArrayList<>();
+        switch (node.getNodeType()) {
+            case ADD:
+                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix()); 
+                rightMatrix.loadRowMajor(node.getChildren().get(1).getMatrix()); 
+                tasks = createAddTasks();
+                executor.submitAll(tasks);
+                node.resolve(leftMatrix.readRowMajor());
+                break;
+            case MULTIPLY:
+                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix()); 
+                rightMatrix.loadColumnMajor(node.getChildren().get(1).getMatrix()); 
+                tasks = createMultiplyTasks();
+                executor.submitAll(tasks);
+                node.resolve(leftMatrix.readRowMajor());
+                break;
+            case NEGATE:
+                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix()); 
+                tasks = createNegateTasks();
+                executor.submitAll(tasks);
+                node.resolve(leftMatrix.readRowMajor());
+                break;
+            case TRANSPOSE:
+                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix()); 
+                tasks = createTransposeTasks();
+                executor.submitAll(tasks);
+                node.resolve(leftMatrix.readRowMajor());
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported operation: " + node.getNodeType());
+        }
     }
 
     public List<Runnable> createAddTasks() {
@@ -96,6 +136,7 @@ public class LinearAlgebraEngine {
                 leftMatrix.get(rowIndex).transpose();
             });
         }
+        
         return tasks;
     }
 
