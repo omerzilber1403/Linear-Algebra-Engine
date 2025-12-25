@@ -73,8 +73,8 @@ public class LinearAlgebraEngine {
         if (leftMatrix == null || rightMatrix == null ||
             leftMatrix.get(0).length() == 0 || rightMatrix.get(0).length() == 0 ||
             leftMatrix.getOrientation() != VectorOrientation.ROW_MAJOR ||  rightMatrix.getOrientation() != VectorOrientation.ROW_MAJOR ||
-             leftMatrix.length() != rightMatrix.length()) {
-            throw new IllegalArgumentException("can't perform addition");
+            leftMatrix.length() != rightMatrix.length()) {
+                throw new IllegalArgumentException("can't perform addition");
         }
 
         List<Runnable> tasks = new ArrayList<>();
@@ -143,5 +143,15 @@ public class LinearAlgebraEngine {
     public String getWorkerReport() {
         // TODO: return summary of worker activity
         return executor.getWorkerReport();
+    }
+
+    public void shutdown() throws InterruptedException {
+        try {
+            executor.shutdown();
+        }
+        catch (InterruptedException e) {
+            throw new InterruptedException("Executor shutdown interrupted: " + e.getMessage());
+        }       
+
     }
 }

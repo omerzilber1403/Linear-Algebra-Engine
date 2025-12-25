@@ -12,7 +12,7 @@ public class SharedVector {
     public SharedVector(double[] vector, VectorOrientation orientation) {
         // TODO: store vector data and its orientation
         if (vector == null) {
-            throw new IllegalArgumentException("vector is null");
+            throw new NullPointerException("vector is null");
         }
         this.vector = vector.clone();
         if (orientation == null) {
@@ -118,6 +118,9 @@ public class SharedVector {
         // TODO: negate vector
         lock.writeLock().lock();
         try {
+            if (vector == null) {
+                throw new NullPointerException("vector is null");
+            }
             for (int i = 0; i < vector.length; i++) {
                 vector[i] = -vector[i];
             }
