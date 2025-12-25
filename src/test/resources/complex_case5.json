@@ -1,0 +1,39 @@
+{
+  "testName": "CASE 5: TRANSPOSE(ADD(MUL(NEGATE(A), B), C))",
+  "description": "Transpose of ((-A * B) + C)",
+  "threadCount": 4,
+  "operator": "T",
+  "operands": [
+    {
+      "operator": "+",
+      "operands": [
+        {
+          "operator": "*",
+          "operands": [
+            {
+              "operator": "-",
+              "operands": [
+                [
+                  [1.0, -1.0],
+                  [2.0, 0.0]
+                ]
+              ]
+            },
+            [
+              [3.0, 2.0],
+              [1.0, 4.0]
+            ]
+          ]
+        },
+        [
+          [5.0, 5.0],
+          [1.0, 1.0]
+        ]
+      ]
+    }
+  ],
+  "expected": [
+    [3.0, -5.0],
+    [7.0, -3.0]
+  ]
+}

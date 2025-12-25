@@ -1,9 +1,16 @@
 {
+  "testName": "NEGATE operation produces correct result",
+  "description": "Tests negation of a 2x2 matrix: -[1, -2] = [-1, 2]; -[-3, 4] = [3, -4]",
+  "threadCount": 2,
   "operator": "-",
   "operands": [
     [
       [1.0, -2.0],
       [-3.0, 4.0]
     ]
+  ],
+  "expected": [
+    [-1.0, 2.0],
+    [3.0, -4.0]
   ]
 }

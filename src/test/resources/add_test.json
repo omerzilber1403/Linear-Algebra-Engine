@@ -1,4 +1,7 @@
 {
+  "testName": "ADD operation produces correct result",
+  "description": "Tests basic addition of two 2x2 matrices: [1+5, 2+6] = [6, 8]; [3+7, 4+8] = [10, 12]",
+  "threadCount": 2,
   "operator": "+",
   "operands": [
     [
@@ -9,5 +12,9 @@
       [5.0, 6.0],
       [7.0, 8.0]
     ]
+  ],
+  "expected": [
+    [6.0, 8.0],
+    [10.0, 12.0]
   ]
 }

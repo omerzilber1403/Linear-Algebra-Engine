@@ -4,16 +4,24 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import parser.ComputationNode;
 import parser.ComputationNodeType;
 import parser.InputParser;
 
 import java.io.File;
+import java.io.FileReader;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -57,161 +65,153 @@ public class LinearAlgebraEngineTest {
         return "src/test/resources/" + filename;
     }
 
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("LAE1: ADD operation produces correct result")
-    void testAddCorrectness() throws Exception {
-        // Arrange
-        lae = new LinearAlgebraEngine(2);
+    /**
+     * Helper to run test from JSON file with expected result and thread count.
+     */
+    private void runTestFromJson(String jsonFile, double[][] expected, int threadCount) throws Exception {
+        lae = new LinearAlgebraEngine(threadCount);
         InputParser parser = new InputParser();
-        ComputationNode root = parser.parse(getResourcePath("add_test.json"));
-
-        // Expected: [1+5, 2+6] = [6, 8]
-        //           [3+7, 4+8]   [10, 12]
-        double[][] expected = {
-            {6.0, 8.0},
-            {10.0, 12.0}
-        };
-
-        // Act
-        lae.run(root);
-        double[][] result = root.getMatrix();
-
-        // Assert
-        assertMatrixEquals(expected, result, "ADD operation result");
-    }
-
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("LAE2: MULTIPLY operation produces correct result")
-    void testMultiplyCorrectness() throws Exception {
-        // Arrange
-        lae = new LinearAlgebraEngine(2);
-        InputParser parser = new InputParser();
-        ComputationNode root = parser.parse(getResourcePath("multiply_test.json"));
-
-        // A (2x3) * B (3x2)
-        // A = [[1, 2, 3],     B = [[1, 2],
-        //      [4, 5, 6]]          [3, 4],
-        //                          [5, 6]]
-        // Result (2x2):
-        // [1*1+2*3+3*5, 1*2+2*4+3*6] = [1+6+15, 2+8+18] = [22, 28]
-        // [4*1+5*3+6*5, 4*2+5*4+6*6]   [4+15+30, 8+20+36] = [49, 64]
-        double[][] expected = {
-            {22.0, 28.0},
-            {49.0, 64.0}
-        };
-
-        // Act
-        lae.run(root);
-        double[][] result = root.getMatrix();
-
-        // Assert
-        assertMatrixEquals(expected, result, "MULTIPLY operation result");
-    }
-
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("LAE3: NEGATE operation produces correct result")
-    void testNegateCorrectness() throws Exception {
-        // Arrange
-        lae = new LinearAlgebraEngine(2);
-        InputParser parser = new InputParser();
-        ComputationNode root = parser.parse(getResourcePath("negate_test.json"));
-
-        // Input:  [[1, -2],     Expected: [[-1, 2],
-        //          [-3, 4]]                [3, -4]]
-        double[][] expected = {
-            {-1.0, 2.0},
-            {3.0, -4.0}
-        };
-
-        // Act
-        lae.run(root);
-        double[][] result = root.getMatrix();
-
-        // Assert
-        assertMatrixEquals(expected, result, "NEGATE operation result");
-    }
-
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("LAE4: TRANSPOSE operation produces correct result")
-    void testTransposeCorrectness() throws Exception {
-        // Arrange
-        lae = new LinearAlgebraEngine(2);
-        InputParser parser = new InputParser();
-        ComputationNode root = parser.parse(getResourcePath("transpose_test.json"));
-
-        // Input (2x3):  [[1, 2, 3],
-        //                [4, 5, 6]]
-        // Expected (3x2): [[1, 4],
-        //                  [2, 5],
-        //                  [3, 6]]
-        double[][] expected = {
-            {1.0, 4.0},
-            {2.0, 5.0},
-            {3.0, 6.0}
-        };
-
-        // Act
-        lae.run(root);
-        double[][] result = root.getMatrix();
-
-        // Assert
-        assertMatrixEquals(expected, result, "TRANSPOSE operation result");
-    }
-
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("LAE5: ADD with mismatched dimensions throws IllegalArgumentException")
-    void testAddMismatchedDimensions() {
-        // Arrange
-        lae = new LinearAlgebraEngine(2);
+        ComputationNode root = parser.parse(getResourcePath(jsonFile));
         
-        // Create matrices with different dimensions
-        ComputationNode matrix1 = new ComputationNode(new double[][]{
-            {1.0, 2.0},
-            {3.0, 4.0}
-        });
-        
-        ComputationNode matrix2 = new ComputationNode(new double[][]{
-            {5.0, 6.0, 7.0}  // Different column count
-        });
-        
-        ComputationNode root = new ComputationNode(ComputationNodeType.ADD, 
-                Arrays.asList(matrix1, matrix2));
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertTimeoutPreemptively(Duration.ofSeconds(3), () -> {
             lae.run(root);
-        }, "ADD with mismatched dimensions should throw IllegalArgumentException");
+        }, "Test should complete without deadlock");
+        
+        double[][] result = root.getMatrix();
+        assertMatrixEquals(expected, result, jsonFile);
     }
 
-    @Test
+    /**
+     * Helper to load expected result from JSON file.
+     */
+    private double[][] loadExpectedFromJson(String jsonFile) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(new File(getResourcePath(jsonFile)));
+        if (root.has("expected")) {
+            return mapper.treeToValue(root.get("expected"), double[][].class);
+        }
+        throw new IllegalArgumentException("No 'expected' field in " + jsonFile);
+    }
+
+    /**
+     * Helper to load thread count from JSON file.
+     */
+    private int loadThreadCountFromJson(String jsonFile) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(new File(getResourcePath(jsonFile)));
+        if (root.has("threadCount")) {
+            return root.get("threadCount").asInt();
+        }
+        return 2; // Default
+    }
+
+    /**
+     * Helper to load test name from JSON file.
+     */
+    private String loadTestNameFromJson(String jsonFile) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(new File(getResourcePath(jsonFile)));
+        if (root.has("testName")) {
+            return root.get("testName").asText();
+        }
+        return jsonFile;
+    }
+
+    // ==================== DATA PROVIDERS FOR PARAMETERIZED TESTS ====================
+
+    /**
+     * Provides test data for basic operations (ADD, MULTIPLY, NEGATE, TRANSPOSE).
+     */
+    static Stream<Arguments> basicOperationTestData() {
+        return Stream.of(
+            Arguments.of("add_test.json"),
+            Arguments.of("multiply_test.json"),
+            Arguments.of("negate_test.json"),
+            Arguments.of("transpose_test.json")
+        );
+    }
+
+    /**
+     * Provides test data for complex computation tree cases.
+     */
+    static Stream<Arguments> complexCaseTestData() {
+        return Stream.of(
+            Arguments.of("complex_case1.json"),
+            Arguments.of("complex_case2.json"),
+            Arguments.of("complex_case3.json"),
+            Arguments.of("complex_case4.json"),
+            Arguments.of("complex_case5.json"),
+            Arguments.of("complex_case6.json")
+        );
+    }
+
+    /**
+     * Provides test data for dimension mismatch error cases.
+     */
+    static Stream<Arguments> dimensionMismatchTestData() {
+        return Stream.of(
+            Arguments.of(ComputationNodeType.ADD, 
+                new double[][]{{1, 2}, {3, 4}}, 
+                new double[][]{{1, 2, 3}},
+                "can't perform addition"),
+            Arguments.of(ComputationNodeType.MULTIPLY, 
+                new double[][]{{1, 2, 3}}, 
+                new double[][]{{1, 2}, {3, 4}},
+                "can't perform multiplication")
+        );
+    }
+
+    // ==================== PARAMETERIZED TESTS ====================
+
+    @ParameterizedTest
+    @MethodSource("basicOperationTestData")
     @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("LAE6: MULTIPLY with mismatched dimensions throws IllegalArgumentException")
-    void testMultiplyMismatchedDimensions() {
-        // Arrange
+    @DisplayName("Basic operations produce correct results from JSON")
+    void testBasicOperationsFromJson(String jsonFile) throws Exception {
+        double[][] expected = loadExpectedFromJson(jsonFile);
+        int threadCount = loadThreadCountFromJson(jsonFile);
+        String testName = loadTestNameFromJson(jsonFile);
+        
+        runTestFromJson(jsonFile, expected, threadCount);
+    }
+
+    @ParameterizedTest
+    @MethodSource("complexCaseTestData")
+    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
+    @DisplayName("Complex computation trees produce correct results from JSON")
+    void testComplexCasesFromJson(String jsonFile) throws Exception {
+        double[][] expected = loadExpectedFromJson(jsonFile);
+        int threadCount = loadThreadCountFromJson(jsonFile);
+        String testName = loadTestNameFromJson(jsonFile);
+        
+        runTestFromJson(jsonFile, expected, threadCount);
+    }
+
+    @ParameterizedTest
+    @MethodSource("dimensionMismatchTestData")
+    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
+    @DisplayName("Operations with mismatched dimensions throw IllegalArgumentException")
+    void testDimensionMismatch(ComputationNodeType operationType, 
+                               double[][] matrix1, 
+                               double[][] matrix2, 
+                               String expectedMessage) {
         lae = new LinearAlgebraEngine(2);
         
-        // Create matrices where A columns != B rows
-        ComputationNode matrix1 = new ComputationNode(new double[][]{
-            {1.0, 2.0, 3.0}  // 1x3 matrix
-        });
+        ComputationNode node1 = new ComputationNode(matrix1);
+        ComputationNode node2 = new ComputationNode(matrix2);
+        ComputationNode root = new ComputationNode(operationType, Arrays.asList(node1, node2));
         
-        ComputationNode matrix2 = new ComputationNode(new double[][]{
-            {4.0, 5.0}  // 1x2 matrix (can't multiply 1x3 * 1x2)
-        });
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> lae.run(root),
+            "Should throw IllegalArgumentException for mismatched dimensions"
+        );
         
-        ComputationNode root = new ComputationNode(ComputationNodeType.MULTIPLY, 
-                Arrays.asList(matrix1, matrix2));
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> {
-            lae.run(root);
-        }, "MULTIPLY with mismatched dimensions should throw IllegalArgumentException");
+        assertTrue(exception.getMessage().contains(expectedMessage),
+                "Exception message should contain: " + expectedMessage);
     }
+
+    // ==================== REMAINING INDIVIDUAL TESTS ====================
 
     @Test
     @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
@@ -395,341 +395,6 @@ public class LinearAlgebraEngineTest {
 
         // Assert
         assertMatrixEquals(expected, result, "Many-threaded execution result");
-    }
-
-    // ==================== COMPLEX COMPUTATION TREE TEST CASES ====================
-
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("CASE 1: TRANSPOSE( ADD(A, NEGATE(B)) )")
-    void testComplexCase1_TransposeAddNegate() {
-        // Arrange: TRANSPOSE( ADD(A, NEGATE(B)) )
-        lae = new LinearAlgebraEngine(3);
-        
-        // A (2x3) = [[1,2,3],[4,5,6]]
-        ComputationNode matrixA = new ComputationNode(new double[][]{
-            {1.0, 2.0, 3.0},
-            {4.0, 5.0, 6.0}
-        });
-        
-        // B (2x3) = [[6,5,4],[3,2,1]]
-        ComputationNode matrixB = new ComputationNode(new double[][]{
-            {6.0, 5.0, 4.0},
-            {3.0, 2.0, 1.0}
-        });
-        
-        // NEGATE(B) = [[-6,-5,-4],[-3,-2,-1]]
-        ComputationNode negateB = new ComputationNode(ComputationNodeType.NEGATE,
-                Arrays.asList(matrixB));
-        
-        // ADD(A, NEGATE(B)) = [[-5,-3,-1],[1,3,5]]
-        ComputationNode addNode = new ComputationNode(ComputationNodeType.ADD,
-                Arrays.asList(matrixA, negateB));
-        
-        // TRANSPOSE = [[-5,1],[-3,3],[-1,5]]
-        ComputationNode root = new ComputationNode(ComputationNodeType.TRANSPOSE,
-                Arrays.asList(addNode));
-        
-        double[][] expected = {
-            {-5.0, 1.0},
-            {-3.0, 3.0},
-            {-1.0, 5.0}
-        };
-
-        // Act
-        assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
-            lae.run(root);
-        }, "CASE 1 should complete without deadlock");
-        
-        double[][] result = root.getMatrix();
-
-        // Assert
-        assertMatrixEquals(expected, result, "CASE 1: TRANSPOSE(ADD(A, NEGATE(B)))");
-    }
-
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("CASE 2: ADD( MUL(A,B), MUL(C,D) )")
-    void testComplexCase2_AddTwoMultiplications() {
-        // Arrange: ADD( MUL(A,B), MUL(C,D) )
-        lae = new LinearAlgebraEngine(4);
-        
-        // A=[[1,2],[3,4]]
-        ComputationNode matrixA = new ComputationNode(new double[][]{
-            {1.0, 2.0},
-            {3.0, 4.0}
-        });
-        
-        // B=[[5,6],[7,8]]
-        ComputationNode matrixB = new ComputationNode(new double[][]{
-            {5.0, 6.0},
-            {7.0, 8.0}
-        });
-        
-        // C=[[2,0],[1,2]]
-        ComputationNode matrixC = new ComputationNode(new double[][]{
-            {2.0, 0.0},
-            {1.0, 2.0}
-        });
-        
-        // D=[[3,1],[4,2]]
-        ComputationNode matrixD = new ComputationNode(new double[][]{
-            {3.0, 1.0},
-            {4.0, 2.0}
-        });
-        
-        // MUL(A,B) = [[19,22],[43,50]]
-        ComputationNode mulAB = new ComputationNode(ComputationNodeType.MULTIPLY,
-                Arrays.asList(matrixA, matrixB));
-        
-        // MUL(C,D) = [[6,2],[11,5]]
-        ComputationNode mulCD = new ComputationNode(ComputationNodeType.MULTIPLY,
-                Arrays.asList(matrixC, matrixD));
-        
-        // ADD = [[25,24],[54,55]]
-        ComputationNode root = new ComputationNode(ComputationNodeType.ADD,
-                Arrays.asList(mulAB, mulCD));
-        
-        double[][] expected = {
-            {25.0, 24.0},
-            {54.0, 55.0}
-        };
-
-        // Act
-        assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
-            lae.run(root);
-        }, "CASE 2 should complete without deadlock");
-        
-        double[][] result = root.getMatrix();
-
-        // Assert
-        assertMatrixEquals(expected, result, "CASE 2: ADD(MUL(A,B), MUL(C,D))");
-    }
-
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("CASE 3: NEGATE( MUL( TRANSPOSE(A), B ) )")
-    void testComplexCase3_NegateMultiplyTranspose() {
-        // Arrange: NEGATE( MUL( TRANSPOSE(A), B ) )
-        lae = new LinearAlgebraEngine(3);
-        
-        // A (2x3) = [[1,2,3],[4,5,6]]
-        ComputationNode matrixA = new ComputationNode(new double[][]{
-            {1.0, 2.0, 3.0},
-            {4.0, 5.0, 6.0}
-        });
-        
-        // B (2x2) = [[2,1],[0,3]]
-        ComputationNode matrixB = new ComputationNode(new double[][]{
-            {2.0, 1.0},
-            {0.0, 3.0}
-        });
-        
-        // TRANSPOSE(A) = [[1,4],[2,5],[3,6]]
-        ComputationNode transposeA = new ComputationNode(ComputationNodeType.TRANSPOSE,
-                Arrays.asList(matrixA));
-        
-        // MUL(TRANSPOSE(A), B) = [[2,13],[4,17],[6,19]]
-        ComputationNode mulNode = new ComputationNode(ComputationNodeType.MULTIPLY,
-                Arrays.asList(transposeA, matrixB));
-        
-        // NEGATE = [[-2,-13],[-4,-17],[-6,-21]]
-        ComputationNode root = new ComputationNode(ComputationNodeType.NEGATE,
-                Arrays.asList(mulNode));
-        
-        double[][] expected = {
-            {-2.0, -13.0},
-            {-4.0, -17.0},
-            {-6.0, -21.0}
-        };
-
-        // Act
-        assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
-            lae.run(root);
-        }, "CASE 3 should complete without deadlock");
-        
-        double[][] result = root.getMatrix();
-
-        // Assert
-        assertMatrixEquals(expected, result, "CASE 3: NEGATE(MUL(TRANSPOSE(A), B))");
-    }
-
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("CASE 4: MUL( ADD(A,B), TRANSPOSE(C) )")
-    void testComplexCase4_MultiplyAddTranspose() {
-        // Arrange: MUL( ADD(A,B), TRANSPOSE(C) )
-        lae = new LinearAlgebraEngine(3);
-        
-        // A (2x2)=[[1,2],[3,4]]
-        ComputationNode matrixA = new ComputationNode(new double[][]{
-            {1.0, 2.0},
-            {3.0, 4.0}
-        });
-        
-        // B (2x2)=[[5,6],[7,8]]
-        ComputationNode matrixB = new ComputationNode(new double[][]{
-            {5.0, 6.0},
-            {7.0, 8.0}
-        });
-        
-        // C (3x2)=[[1,0],[0,1],[1,1]]
-        ComputationNode matrixC = new ComputationNode(new double[][]{
-            {1.0, 0.0},
-            {0.0, 1.0},
-            {1.0, 1.0}
-        });
-        
-        // ADD(A,B) = [[6,8],[10,12]]
-        ComputationNode addNode = new ComputationNode(ComputationNodeType.ADD,
-                Arrays.asList(matrixA, matrixB));
-        
-        // TRANSPOSE(C) = [[1,0,1],[0,1,1]]
-        ComputationNode transposeC = new ComputationNode(ComputationNodeType.TRANSPOSE,
-                Arrays.asList(matrixC));
-        
-        // MUL = [[6,8,14],[10,12,22]]
-        ComputationNode root = new ComputationNode(ComputationNodeType.MULTIPLY,
-                Arrays.asList(addNode, transposeC));
-        
-        double[][] expected = {
-            {6.0, 8.0, 14.0},
-            {10.0, 12.0, 22.0}
-        };
-
-        // Act
-        assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
-            lae.run(root);
-        }, "CASE 4 should complete without deadlock");
-        
-        double[][] result = root.getMatrix();
-
-        // Assert
-        assertMatrixEquals(expected, result, "CASE 4: MUL(ADD(A,B), TRANSPOSE(C))");
-    }
-
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("CASE 5: TRANSPOSE( ADD( MUL( NEGATE(A), B ), C ) )")
-    void testComplexCase5_TransposeAddMultiplyNegate() {
-        // Arrange: TRANSPOSE( ADD( MUL( NEGATE(A), B ), C ) )
-        lae = new LinearAlgebraEngine(4);
-        
-        // A (2x2)=[[1,-1],[2,0]]
-        ComputationNode matrixA = new ComputationNode(new double[][]{
-            {1.0, -1.0},
-            {2.0, 0.0}
-        });
-        
-        // B (2x2)=[[3,2],[1,4]]
-        ComputationNode matrixB = new ComputationNode(new double[][]{
-            {3.0, 2.0},
-            {1.0, 4.0}
-        });
-        
-        // C (2x2)=[[5,5],[1,1]]
-        ComputationNode matrixC = new ComputationNode(new double[][]{
-            {5.0, 5.0},
-            {1.0, 1.0}
-        });
-        
-        // NEGATE(A) = [[-1,1],[-2,0]]
-        ComputationNode negateA = new ComputationNode(ComputationNodeType.NEGATE,
-                Arrays.asList(matrixA));
-        
-        // MUL(NEGATE(A), B) = [[-2,2],[-6,-4]]
-        ComputationNode mulNode = new ComputationNode(ComputationNodeType.MULTIPLY,
-                Arrays.asList(negateA, matrixB));
-        
-        // ADD(MUL, C) = [[3,7],[-5,-3]]
-        ComputationNode addNode = new ComputationNode(ComputationNodeType.ADD,
-                Arrays.asList(mulNode, matrixC));
-        
-        // TRANSPOSE = [[3,-5],[7,-3]]
-        ComputationNode root = new ComputationNode(ComputationNodeType.TRANSPOSE,
-                Arrays.asList(addNode));
-        
-        double[][] expected = {
-            {3.0, -5.0},
-            {7.0, -3.0}
-        };
-
-        // Act
-        assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
-            lae.run(root);
-        }, "CASE 5 should complete without deadlock");
-        
-        double[][] result = root.getMatrix();
-
-        // Assert
-        assertMatrixEquals(expected, result, "CASE 5: TRANSPOSE(ADD(MUL(NEGATE(A), B), C))");
-    }
-
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("CASE 6: ADD( MUL(A, ADD(B,C)), NEGATE(TRANSPOSE(D)) )")
-    void testComplexCase6_AddMultiplyAddNegateTranspose() {
-        // Arrange: ADD( MUL(A, ADD(B,C)), NEGATE(TRANSPOSE(D)) )
-        lae = new LinearAlgebraEngine(4);
-        
-        // A (2x2)=[[2,0],[1,2]]
-        ComputationNode matrixA = new ComputationNode(new double[][]{
-            {2.0, 0.0},
-            {1.0, 2.0}
-        });
-        
-        // B (2x2)=[[1,2],[3,4]]
-        ComputationNode matrixB = new ComputationNode(new double[][]{
-            {1.0, 2.0},
-            {3.0, 4.0}
-        });
-        
-        // C (2x2)=[[0,1],[1,0]]
-        ComputationNode matrixC = new ComputationNode(new double[][]{
-            {0.0, 1.0},
-            {1.0, 0.0}
-        });
-        
-        // D (2x2)=[[1,2],[3,4]]
-        ComputationNode matrixD = new ComputationNode(new double[][]{
-            {1.0, 2.0},
-            {3.0, 4.0}
-        });
-        
-        // ADD(B,C) = [[1,3],[4,4]]
-        ComputationNode addBC = new ComputationNode(ComputationNodeType.ADD,
-                Arrays.asList(matrixB, matrixC));
-        
-        // MUL(A, ADD(B,C)) = [[2,6],[9,11]]
-        ComputationNode mulNode = new ComputationNode(ComputationNodeType.MULTIPLY,
-                Arrays.asList(matrixA, addBC));
-        
-        // TRANSPOSE(D) = [[1,3],[2,4]]
-        ComputationNode transposeD = new ComputationNode(ComputationNodeType.TRANSPOSE,
-                Arrays.asList(matrixD));
-        
-        // NEGATE(TRANSPOSE(D)) = [[-1,-3],[-2,-4]]
-        ComputationNode negateTranspose = new ComputationNode(ComputationNodeType.NEGATE,
-                Arrays.asList(transposeD));
-        
-        // ADD(MUL, NEGATE) = [[1,3],[7,7]]
-        ComputationNode root = new ComputationNode(ComputationNodeType.ADD,
-                Arrays.asList(mulNode, negateTranspose));
-        
-        double[][] expected = {
-            {1.0, 3.0},
-            {7.0, 7.0}
-        };
-
-        // Act
-        assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
-            lae.run(root);
-        }, "CASE 6 should complete without deadlock");
-        
-        double[][] result = root.getMatrix();
-
-        // Assert
-        assertMatrixEquals(expected, result, "CASE 6: ADD(MUL(A, ADD(B,C)), NEGATE(TRANSPOSE(D)))");
     }
 
     // ==================== UTILIZATION & EFFICIENCY TESTS ====================

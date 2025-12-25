@@ -1,0 +1,31 @@
+{
+  "testName": "CASE 3: NEGATE(MUL(TRANSPOSE(A), B))",
+  "description": "Negate the result of transpose(A) * B",
+  "threadCount": 3,
+  "operator": "-",
+  "operands": [
+    {
+      "operator": "*",
+      "operands": [
+        {
+          "operator": "T",
+          "operands": [
+            [
+              [1.0, 2.0, 3.0],
+              [4.0, 5.0, 6.0]
+            ]
+          ]
+        },
+        [
+          [2.0, 1.0],
+          [0.0, 3.0]
+        ]
+      ]
+    }
+  ],
+  "expected": [
+    [-2.0, -13.0],
+    [-4.0, -17.0],
+    [-6.0, -21.0]
+  ]
+}
