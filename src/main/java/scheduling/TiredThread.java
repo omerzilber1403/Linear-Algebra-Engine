@@ -78,7 +78,7 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
        if (!alive.compareAndSet(true, false)){
         return;
        }
-       handoff.offer(POISON_PILL);     // ✓ Succeeds! (handoff is empty)
+       handoff.offer(POISON_PILL); 
        this.interrupt(); 
     }
 
