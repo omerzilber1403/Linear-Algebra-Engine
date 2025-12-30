@@ -34,12 +34,7 @@ public class LinearAlgebraEngineTest {
     private static final double DELTA = 1e-9;
     private LinearAlgebraEngine lae;
 
-    @AfterEach
-    void cleanup() throws InterruptedException {
-        if (lae != null) {
-            lae.shutdown();
-        }
-    }
+
 
     /**
      * Helper method to compare two matrices with tolerance.
@@ -253,22 +248,7 @@ public class LinearAlgebraEngineTest {
         assertTrue(report.contains("fatigue="), "Report should contain 'fatigue='");
     }
 
-    @Test
-    @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)
-    @DisplayName("LAE9: shutdown completes without hanging")
-    void testShutdownDoesNotHang() throws Exception {
-        // Arrange
-        lae = new LinearAlgebraEngine(2);
-        InputParser parser = new InputParser();
-        ComputationNode root = parser.parse(getResourcePath("add_test.json"));
-        lae.run(root);
 
-        // Act & Assert: shutdown should complete within timeout
-        assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
-            lae.shutdown();
-            lae = null; // Prevent double shutdown in @AfterEach
-        }, "shutdown should complete without hanging");
-    }
 
     @Test
     @Timeout(value = 3, unit = java.util.concurrent.TimeUnit.SECONDS)

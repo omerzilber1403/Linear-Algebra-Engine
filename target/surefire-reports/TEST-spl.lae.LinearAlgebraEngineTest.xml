@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="spl.lae.LinearAlgebraEngineTest" time="0.81" tests="26" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="spl.lae.LinearAlgebraEngineTest" time="8.506" tests="25" errors="2" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="25"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-25\bin"/>
-    <property name="sun.java.command" value="C:\Users\omerz\AppData\Local\Temp\surefire9980893353439520334\surefirebooter-20251225230155443_3.jar C:\Users\omerz\AppData\Local\Temp\surefire9980893353439520334 2025-12-25T23-01-55_206-jvmRun1 surefire-20251225230155443_1tmp surefire_0-20251225230155443_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\omerz\AppData\Local\Temp\surefire11685380380575047594\surefirebooter-20251229205454342_3.jar C:\Users\omerz\AppData\Local\Temp\surefire11685380380575047594 2025-12-29T20-54-54_209-jvmRun1 surefire-20251229205454342_1tmp surefire_0-20251229205454342_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="test" value="LinearAlgebraEngineTest"/>
     <property name="surefire.test.class.path" value="C:\Users\omerz\Documents\Uni\Systems\Assignments\Assignment2\LAE\target\test-classes;C:\Users\omerz\Documents\Uni\Systems\Assignments\Assignment2\LAE\target\classes;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter\5.10.2\junit-jupiter-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\omerz\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\omerz\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\omerz\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.17.1\jackson-databind-2.17.1.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.17.1\jackson-annotations-2.17.1.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.17.1\jackson-core-2.17.1.jar;"/>
@@ -31,7 +31,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\omerz\AppData\Local\Temp\surefire9980893353439520334\surefirebooter-20251225230155443_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\omerz\AppData\Local\Temp\surefire11685380380575047594\surefirebooter-20251229205454342_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="25.0.1+8-LTS-27"/>
@@ -60,30 +60,65 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="69.0"/>
   </properties>
-  <testcase name="testShutdownDoesNotHang" classname="spl.lae.LinearAlgebraEngineTest" time="0.337"/>
-  <testcase name="testMultipleSequentialOperations" classname="spl.lae.LinearAlgebraEngineTest" time="0.012"/>
-  <testcase name="testComplexCasesFromJson(String)[1]" classname="spl.lae.LinearAlgebraEngineTest" time="0.087"/>
+  <testcase name="testMultipleSequentialOperations" classname="spl.lae.LinearAlgebraEngineTest" time="3.077">
+    <error message="testMultipleSequentialOperations() timed out after 3 seconds" type="java.util.concurrent.TimeoutException"><![CDATA[java.util.concurrent.TimeoutException: testMultipleSequentialOperations() timed out after 3 seconds
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	Suppressed: java.lang.IllegalStateException: submit interrupted
+		at scheduling.TiredExecutor.submit(TiredExecutor.java:40)
+		at scheduling.TiredExecutor.submitAll(TiredExecutor.java:81)
+		at spl.lae.LinearAlgebraEngine.loadAndCompute(LinearAlgebraEngine.java:60)
+		at spl.lae.LinearAlgebraEngine.run(LinearAlgebraEngine.java:27)
+		at spl.lae.LinearAlgebraEngineTest.testMultipleSequentialOperations(LinearAlgebraEngineTest.java:325)
+		at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+		... 2 more
+	Caused by: java.lang.InterruptedException
+		at java.base/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1767)
+		at java.base/java.util.concurrent.PriorityBlockingQueue.take(PriorityBlockingQueue.java:536)
+		at scheduling.TiredExecutor.submit(TiredExecutor.java:37)
+		... 7 more
+]]></error>
+  </testcase>
+  <testcase name="testComplexCasesFromJson(String)[1]" classname="spl.lae.LinearAlgebraEngineTest" time="0.072"/>
   <testcase name="testComplexCasesFromJson(String)[2]" classname="spl.lae.LinearAlgebraEngineTest" time="0.015"/>
-  <testcase name="testComplexCasesFromJson(String)[3]" classname="spl.lae.LinearAlgebraEngineTest" time="0.015"/>
-  <testcase name="testComplexCasesFromJson(String)[4]" classname="spl.lae.LinearAlgebraEngineTest" time="0.012"/>
+  <testcase name="testComplexCasesFromJson(String)[3]" classname="spl.lae.LinearAlgebraEngineTest" time="0.01"/>
+  <testcase name="testComplexCasesFromJson(String)[4]" classname="spl.lae.LinearAlgebraEngineTest" time="0.015"/>
   <testcase name="testComplexCasesFromJson(String)[5]" classname="spl.lae.LinearAlgebraEngineTest" time="0.011"/>
-  <testcase name="testComplexCasesFromJson(String)[6]" classname="spl.lae.LinearAlgebraEngineTest" time="0.01"/>
-  <testcase name="testUtilization_FatigueIncreasesWithWork" classname="spl.lae.LinearAlgebraEngineTest" time="0.008"/>
-  <testcase name="testGetWorkerReportSanity" classname="spl.lae.LinearAlgebraEngineTest" time="0.005"/>
-  <testcase name="testManyThreadsExecution" classname="spl.lae.LinearAlgebraEngineTest" time="0.006"/>
-  <testcase name="testUtilization_BalancedLoadDistribution" classname="spl.lae.LinearAlgebraEngineTest" time="0.012"/>
-  <testcase name="testLoadAndComputeNullNode" classname="spl.lae.LinearAlgebraEngineTest" time="0.004"/>
-  <testcase name="testBasicOperationsFromJson(String)[1]" classname="spl.lae.LinearAlgebraEngineTest" time="0.01"/>
+  <testcase name="testComplexCasesFromJson(String)[6]" classname="spl.lae.LinearAlgebraEngineTest" time="0.013"/>
+  <testcase name="testUtilization_FatigueIncreasesWithWork" classname="spl.lae.LinearAlgebraEngineTest" time="0.01"/>
+  <testcase name="testGetWorkerReportSanity" classname="spl.lae.LinearAlgebraEngineTest" time="0.006"/>
+  <testcase name="testManyThreadsExecution" classname="spl.lae.LinearAlgebraEngineTest" time="0.008"/>
+  <testcase name="testUtilization_BalancedLoadDistribution" classname="spl.lae.LinearAlgebraEngineTest" time="0.013"/>
+  <testcase name="testLoadAndComputeNullNode" classname="spl.lae.LinearAlgebraEngineTest" time="0.005"/>
+  <testcase name="testBasicOperationsFromJson(String)[1]" classname="spl.lae.LinearAlgebraEngineTest" time="0.011"/>
   <testcase name="testBasicOperationsFromJson(String)[2]" classname="spl.lae.LinearAlgebraEngineTest" time="0.008"/>
-  <testcase name="testBasicOperationsFromJson(String)[3]" classname="spl.lae.LinearAlgebraEngineTest" time="0.015"/>
+  <testcase name="testBasicOperationsFromJson(String)[3]" classname="spl.lae.LinearAlgebraEngineTest" time="0.011"/>
   <testcase name="testBasicOperationsFromJson(String)[4]" classname="spl.lae.LinearAlgebraEngineTest" time="0.009"/>
-  <testcase name="testUtilization_UsedTimeAccumulates" classname="spl.lae.LinearAlgebraEngineTest" time="0.004"/>
-  <testcase name="testNoDeadlock" classname="spl.lae.LinearAlgebraEngineTest" time="0.006"/>
-  <testcase name="testDimensionMismatch(ComputationNodeType, double[][], double[][], String)[1]" classname="spl.lae.LinearAlgebraEngineTest" time="0.014"/>
-  <testcase name="testDimensionMismatch(ComputationNodeType, double[][], double[][], String)[2]" classname="spl.lae.LinearAlgebraEngineTest" time="0.003"/>
-  <testcase name="testUtilization_ReportFormatConsistency" classname="spl.lae.LinearAlgebraEngineTest" time="0.005"/>
-  <testcase name="testUtilization_AllWorkersParticipate" classname="spl.lae.LinearAlgebraEngineTest" time="0.006"/>
-  <testcase name="testComplexComputationTree" classname="spl.lae.LinearAlgebraEngineTest" time="0.004"/>
-  <testcase name="testSingleThreadedExecution" classname="spl.lae.LinearAlgebraEngineTest" time="0.005"/>
-  <testcase name="testUtilization_BusyStateTransitions" classname="spl.lae.LinearAlgebraEngineTest" time="0.003"/>
+  <testcase name="testUtilization_UsedTimeAccumulates" classname="spl.lae.LinearAlgebraEngineTest" time="5.007">
+    <error message="testUtilization_UsedTimeAccumulates() timed out after 5 seconds" type="java.util.concurrent.TimeoutException"><![CDATA[java.util.concurrent.TimeoutException: testUtilization_UsedTimeAccumulates() timed out after 5 seconds
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	Suppressed: java.lang.IllegalStateException: submit interrupted
+		at scheduling.TiredExecutor.submit(TiredExecutor.java:40)
+		at scheduling.TiredExecutor.submitAll(TiredExecutor.java:81)
+		at spl.lae.LinearAlgebraEngine.loadAndCompute(LinearAlgebraEngine.java:72)
+		at spl.lae.LinearAlgebraEngine.run(LinearAlgebraEngine.java:27)
+		at spl.lae.LinearAlgebraEngineTest.testUtilization_UsedTimeAccumulates(LinearAlgebraEngineTest.java:518)
+		at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+		... 2 more
+	Caused by: java.lang.InterruptedException
+		at java.base/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1767)
+		at java.base/java.util.concurrent.PriorityBlockingQueue.take(PriorityBlockingQueue.java:536)
+		at scheduling.TiredExecutor.submit(TiredExecutor.java:37)
+		... 7 more
+]]></error>
+  </testcase>
+  <testcase name="testNoDeadlock" classname="spl.lae.LinearAlgebraEngineTest" time="0.004"/>
+  <testcase name="testDimensionMismatch(ComputationNodeType, double[][], double[][], String)[1]" classname="spl.lae.LinearAlgebraEngineTest" time="0.011"/>
+  <testcase name="testDimensionMismatch(ComputationNodeType, double[][], double[][], String)[2]" classname="spl.lae.LinearAlgebraEngineTest" time="0.001"/>
+  <testcase name="testUtilization_ReportFormatConsistency" classname="spl.lae.LinearAlgebraEngineTest" time="0.006"/>
+  <testcase name="testUtilization_AllWorkersParticipate" classname="spl.lae.LinearAlgebraEngineTest" time="0.004"/>
+  <testcase name="testComplexComputationTree" classname="spl.lae.LinearAlgebraEngineTest" time="0.003"/>
+  <testcase name="testSingleThreadedExecution" classname="spl.lae.LinearAlgebraEngineTest" time="0.003"/>
+  <testcase name="testUtilization_BusyStateTransitions" classname="spl.lae.LinearAlgebraEngineTest" time="0.002"/>
 </testsuite>

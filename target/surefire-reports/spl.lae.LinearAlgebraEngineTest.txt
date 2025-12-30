@@ -1,4 +1,40 @@
 -------------------------------------------------------------------------------
 Test set: spl.lae.LinearAlgebraEngineTest
 -------------------------------------------------------------------------------
-Tests run: 26, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.810 s -- in spl.lae.LinearAlgebraEngineTest
+Tests run: 25, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 8.506 s <<< FAILURE! -- in spl.lae.LinearAlgebraEngineTest
+spl.lae.LinearAlgebraEngineTest.testMultipleSequentialOperations -- Time elapsed: 3.077 s <<< ERROR!
+java.util.concurrent.TimeoutException: testMultipleSequentialOperations() timed out after 3 seconds
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	Suppressed: java.lang.IllegalStateException: submit interrupted
+		at scheduling.TiredExecutor.submit(TiredExecutor.java:40)
+		at scheduling.TiredExecutor.submitAll(TiredExecutor.java:81)
+		at spl.lae.LinearAlgebraEngine.loadAndCompute(LinearAlgebraEngine.java:60)
+		at spl.lae.LinearAlgebraEngine.run(LinearAlgebraEngine.java:27)
+		at spl.lae.LinearAlgebraEngineTest.testMultipleSequentialOperations(LinearAlgebraEngineTest.java:325)
+		at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+		... 2 more
+	Caused by: java.lang.InterruptedException
+		at java.base/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1767)
+		at java.base/java.util.concurrent.PriorityBlockingQueue.take(PriorityBlockingQueue.java:536)
+		at scheduling.TiredExecutor.submit(TiredExecutor.java:37)
+		... 7 more
+
+spl.lae.LinearAlgebraEngineTest.testUtilization_UsedTimeAccumulates -- Time elapsed: 5.007 s <<< ERROR!
+java.util.concurrent.TimeoutException: testUtilization_UsedTimeAccumulates() timed out after 5 seconds
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	Suppressed: java.lang.IllegalStateException: submit interrupted
+		at scheduling.TiredExecutor.submit(TiredExecutor.java:40)
+		at scheduling.TiredExecutor.submitAll(TiredExecutor.java:81)
+		at spl.lae.LinearAlgebraEngine.loadAndCompute(LinearAlgebraEngine.java:72)
+		at spl.lae.LinearAlgebraEngine.run(LinearAlgebraEngine.java:27)
+		at spl.lae.LinearAlgebraEngineTest.testUtilization_UsedTimeAccumulates(LinearAlgebraEngineTest.java:518)
+		at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+		... 2 more
+	Caused by: java.lang.InterruptedException
+		at java.base/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.await(AbstractQueuedSynchronizer.java:1767)
+		at java.base/java.util.concurrent.PriorityBlockingQueue.take(PriorityBlockingQueue.java:536)
+		at scheduling.TiredExecutor.submit(TiredExecutor.java:37)
+		... 7 more
+

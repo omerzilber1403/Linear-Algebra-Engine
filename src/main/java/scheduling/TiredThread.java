@@ -79,7 +79,6 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
         return;
        }
        handoff.offer(POISON_PILL); 
-       this.interrupt(); 
     }
 
     @Override

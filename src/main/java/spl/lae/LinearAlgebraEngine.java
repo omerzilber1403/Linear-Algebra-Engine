@@ -20,11 +20,20 @@ public class LinearAlgebraEngine {
 
     public ComputationNode run(ComputationNode computationRoot) {
         // TODO: resolve computation tree step by step until final matrix is produced
-        computationRoot.associativeNesting();
-        ComputationNode currNode = computationRoot.findResolvable();
-        while (currNode != null) {
-            loadAndCompute(currNode);
-            currNode = computationRoot.findResolvable();
+        try { 
+            computationRoot.associativeNesting();
+            ComputationNode currNode = computationRoot.findResolvable();
+            while (currNode != null) {
+                loadAndCompute(currNode);
+                currNode = computationRoot.findResolvable();
+            }
+        } finally {
+            try {
+                executor.shutdown();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
         }
         return computationRoot;
     }
@@ -143,15 +152,5 @@ public class LinearAlgebraEngine {
     public String getWorkerReport() {
         // TODO: return summary of worker activity
         return executor.getWorkerReport();
-    }
-
-    public void shutdown() throws InterruptedException {
-        try {
-            executor.shutdown();
-        }
-        catch (InterruptedException e) {
-            throw new InterruptedException("Executor shutdown interrupted: " + e.getMessage());
-        }       
-
     }
 }

@@ -12,17 +12,10 @@ public class Main {
         try {
             ComputationNode root=inputParser.parse("example.json");
             LAE.run(root);
+            System.out.println(LAE.getWorkerReport());
             OutputWriter.write(root.getMatrix(), "My_out.json");
         } catch (ParseException e) {
             throw new RuntimeException(e);
-        }finally {
-            try {
-                LAE.shutdown();
-            }
-            catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
         }
-
     }
 }
