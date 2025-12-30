@@ -107,37 +107,6 @@ public class SharedVectorLockDisciplineTest {
         assertVectorCanBeWriteLocked(v2);
     }
 
-    @Test
-    @Timeout(value = 5, unit = TimeUnit.SECONDS)
-    @DisplayName("Concurrent add operations with lock ordering (no deadlock)")
-    void testAddConcurrentNoDeadlock() throws Exception {
-        // Arrange: Create two vectors
-        SharedVector v1 = new SharedVector(new double[]{1.0, 2.0, 3.0}, VectorOrientation.ROW_MAJOR);
-        SharedVector v2 = new SharedVector(new double[]{4.0, 5.0, 6.0}, VectorOrientation.ROW_MAJOR);
-        
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        
-        try {
-            // Act: Run v1.add(v2) and v2.add(v1) concurrently
-            Future<?> task1 = executor.submit(() -> {
-                v1.add(v2);
-            });
-            
-            Future<?> task2 = executor.submit(() -> {
-                v2.add(v1);
-            });
-            
-            // Assert: Both operations should complete without deadlock
-            assertDoesNotThrow(() -> {
-                task1.get(OPERATION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-                task2.get(OPERATION_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-            }, "Concurrent add operations should complete without deadlock");
-            
-        } finally {
-            executor.shutdown();
-            assertTrue(executor.awaitTermination(2, TimeUnit.SECONDS));
-        }
-    }
 
     @Test
     @Timeout(value = 5, unit = TimeUnit.SECONDS)

@@ -20,6 +20,9 @@ public class LinearAlgebraEngine {
 
     public ComputationNode run(ComputationNode computationRoot) {
         // TODO: resolve computation tree step by step until final matrix is produced
+        if (computationRoot == null) {
+            throw new IllegalArgumentException("computation node cant be null");
+        }
         try { 
             computationRoot.associativeNesting();
             ComputationNode currNode = computationRoot.findResolvable();
@@ -27,6 +30,7 @@ public class LinearAlgebraEngine {
                 loadAndCompute(currNode);
                 currNode = computationRoot.findResolvable();
             }
+            return computationRoot;
         } finally {
             try {
                 executor.shutdown();
@@ -35,7 +39,6 @@ public class LinearAlgebraEngine {
                 throw new RuntimeException(e);
             }
         }
-        return computationRoot;
     }
 
     public void loadAndCompute(ComputationNode node) {
@@ -45,29 +48,42 @@ public class LinearAlgebraEngine {
             throw new IllegalArgumentException("ComputationNode is null");
         }
         List<Runnable> tasks = new ArrayList<>();
+        List<ComputationNode> children = node.getChildren();
         switch (node.getNodeType()) {
             case ADD:
-                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix()); 
-                rightMatrix.loadRowMajor(node.getChildren().get(1).getMatrix()); 
+                if (children.size() != 2) {
+                    throw new IllegalArgumentException("add mathod needs 2 matrixes");
+                }
+                leftMatrix.loadRowMajor(children.get(0).getMatrix()); 
+                rightMatrix.loadRowMajor(children.get(1).getMatrix()); 
                 tasks = createAddTasks();
                 executor.submitAll(tasks);
                 node.resolve(leftMatrix.readRowMajor());
                 break;
             case MULTIPLY:
-                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix()); 
-                rightMatrix.loadColumnMajor(node.getChildren().get(1).getMatrix()); 
+                if (children.size() != 2) {
+                    throw new IllegalArgumentException("multiply mathod needs 2 matrixes");
+                }
+                leftMatrix.loadRowMajor(children.get(0).getMatrix()); 
+                rightMatrix.loadColumnMajor(children.get(1).getMatrix()); 
                 tasks = createMultiplyTasks();
                 executor.submitAll(tasks);
                 node.resolve(leftMatrix.readRowMajor());
                 break;
             case NEGATE:
-                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix()); 
+                if (children.size() != 1) {
+                    throw new IllegalArgumentException("add mathod needs 1 matrix");
+                }
+                leftMatrix.loadRowMajor(children.get(0).getMatrix()); 
                 tasks = createNegateTasks();
                 executor.submitAll(tasks);
                 node.resolve(leftMatrix.readRowMajor());
                 break;
             case TRANSPOSE:
-                leftMatrix.loadRowMajor(node.getChildren().get(0).getMatrix()); 
+                  if (children.size() != 1) {
+                    throw new IllegalArgumentException("add mathod needs 1 matrix");
+                }
+                leftMatrix.loadRowMajor(children.get(0).getMatrix()); 
                 tasks = createTransposeTasks();
                 executor.submitAll(tasks);
                 node.resolve(leftMatrix.readRowMajor());
@@ -118,9 +134,8 @@ public class LinearAlgebraEngine {
 
     public List<Runnable> createNegateTasks() {
         // TODO: return tasks that negate rows
-        if (leftMatrix == null || leftMatrix.get(0).length() == 0 
-         || leftMatrix.getOrientation() != VectorOrientation.ROW_MAJOR) {
-            throw new IllegalArgumentException("matrix is null or not valid");
+        if (leftMatrix == null || leftMatrix.get(0).length() == 0 ) {
+            throw new IllegalArgumentException("matrix is null ");
         }
         List<Runnable> tasks = new ArrayList<>();
         for (int i = 0 ; i < leftMatrix.length(); i = i + 1) {
@@ -134,9 +149,8 @@ public class LinearAlgebraEngine {
 
     public List<Runnable> createTransposeTasks() {
         // TODO: return tasks that transpose rows
-        if (leftMatrix == null || leftMatrix.get(0).length() == 0 
-         || leftMatrix.getOrientation() != VectorOrientation.ROW_MAJOR ) {
-            throw new IllegalArgumentException("matrix is null or not valid");
+        if (leftMatrix == null || leftMatrix.get(0).length() == 0){
+            throw new IllegalArgumentException("matrix is null ");
         }       
         List<Runnable> tasks = new ArrayList<>();
         for (int i = 0 ; i < leftMatrix.length(); i = i + 1) {

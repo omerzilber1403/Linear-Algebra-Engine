@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="scheduling.TiredThreadTest" time="0.084" tests="8" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="spl.lae.LinearAlgebraEngineTestLiya" time="0.118" tests="27" errors="0" skipped="0" failures="1">
   <properties>
     <property name="java.specification.version" value="25"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,9 +15,9 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-25\bin"/>
-    <property name="sun.java.command" value="C:\Users\omerz\AppData\Local\Temp\surefire10943761458544832166\surefirebooter-20251230145458734_3.jar C:\Users\omerz\AppData\Local\Temp\surefire10943761458544832166 2025-12-30T14-54-58_603-jvmRun1 surefire-20251230145458734_1tmp surefire_0-20251230145458734_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\omerz\AppData\Local\Temp\surefire17563121361394112568\surefirebooter-20251230152107961_3.jar C:\Users\omerz\AppData\Local\Temp\surefire17563121361394112568 2025-12-30T15-21-07_844-jvmRun1 surefire-20251230152107961_1tmp surefire_0-20251230152107961_2tmp"/>
     <property name="jdk.debug" value="release"/>
-    <property name="test" value="TiredThreadTest"/>
+    <property name="test" value="LinearAlgebraEngineTestLiya"/>
     <property name="surefire.test.class.path" value="C:\Users\omerz\Documents\Uni\Systems\Assignments\Assignment2\LAE\target\test-classes;C:\Users\omerz\Documents\Uni\Systems\Assignments\Assignment2\LAE\target\classes;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter\5.10.2\junit-jupiter-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\omerz\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\omerz\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\omerz\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.17.1\jackson-databind-2.17.1.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.17.1\jackson-annotations-2.17.1.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.17.1\jackson-core-2.17.1.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="user.home" value="C:\Users\omerz"/>
@@ -31,7 +31,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\omerz\AppData\Local\Temp\surefire10943761458544832166\surefirebooter-20251230145458734_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\omerz\AppData\Local\Temp\surefire17563121361394112568\surefirebooter-20251230152107961_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="25.0.1+8-LTS-27"/>
@@ -60,12 +60,44 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="69.0"/>
   </properties>
-  <testcase name="testNewTaskNullThrowsException" classname="scheduling.TiredThreadTest" time="0.027"/>
-  <testcase name="testRunExecutesTaskOnce" classname="scheduling.TiredThreadTest" time="0.001"/>
-  <testcase name="testWorkerRemainsIdleAfterTaskCompletion" classname="scheduling.TiredThreadTest" time="0.002"/>
-  <testcase name="testMultipleTasksExecuteSequentially" classname="scheduling.TiredThreadTest" time="0.005"/>
-  <testcase name="testHandoffCapacityBehavior" classname="scheduling.TiredThreadTest" time="0.002"/>
-  <testcase name="testShutdownIsIdempotent" classname="scheduling.TiredThreadTest" time="0.002"/>
-  <testcase name="testNewTaskAfterShutdownThrowsException" classname="scheduling.TiredThreadTest" time="0.002"/>
-  <testcase name="testCompareToConsistentWithFatigue" classname="scheduling.TiredThreadTest" time="0.009"/>
+  <testcase name="testConstructor_SingleThread_CreatesEngine" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.024"/>
+  <testcase name="testTranspose_2x2Matrix_TransposesCorrectly" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.007"/>
+  <testcase name="testConstructor_ZeroThreads_ThrowsException" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.002"/>
+  <testcase name="testRun_SimpleAddition_ReturnsResolvedNode" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.001"/>
+  <testcase name="testNegate_TwoChildren_ThrowsException" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.002"/>
+  <testcase name="testTranspose_3x2Matrix_TransposesCorrectly" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.001"/>
+  <testcase name="testConstructor_NegativeThreads_ThrowsException" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.003"/>
+  <testcase name="testTwoIndependentEngines_WorkCorrectly" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.003"/>
+  <testcase name="testMultiply_CorrectMultiplication_2x2Matrices" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.002"/>
+  <testcase name="testAdd_CorrectAddition_2x2Matrices" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.001"/>
+  <testcase name="testRun_ShutsDownExecutor_AfterCompletion" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.005"/>
+  <testcase name="testAdd_LessThanTwoChildren_ThrowsException" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.003"/>
+  <testcase name="testMultiply_LessThanTwoChildren_ThrowsException" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.001"/>
+  <testcase name="testTranspose_ZeroChildren_ThrowsException" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.002"/>
+  <testcase name="testAdd_CorrectAddition_3x3Matrices" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.001"/>
+  <testcase name="testMixedOperations_AddThenMultiply_ReturnsCorrectResult" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.003"/>
+  <testcase name="testRun_NestedExpression_ResolvesCorrectly" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.002"/>
+  <testcase name="testNegate_MixedValues_NegatesCorrectly" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.003"/>
+  <testcase name="testTranspose_TwoChildren_ThrowsException" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.002"/>
+  <testcase name="testNegate_ZeroChildren_ThrowsException" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.002"/>
+  <testcase name="testRun_SimpleMultiplication_ReturnsCorrectResult" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.001"/>
+  <testcase name="testGetWorkerReport_ReturnsNonEmptyString" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.002"/>
+  <testcase name="testRun_NullComputationRoot_ThrowsException" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.002"/>
+  <testcase name="testNegate_PositiveValues_BecomesNegative" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.001"/>
+  <testcase name="testConstructor_ValidThreadCount_CreatesEngine" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.001"/>
+  <testcase name="testGetWorkerReport_ContainsWorkerInfo" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.007">
+    <failure message="expected: &lt;true&gt; but was: &lt;false&gt;" type="org.opentest4j.AssertionFailedError"><![CDATA[org.opentest4j.AssertionFailedError: expected: <true> but was: <false>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertTrue.failNotTrue(AssertTrue.java:63)
+	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:36)
+	at org.junit.jupiter.api.AssertTrue.assertTrue(AssertTrue.java:31)
+	at org.junit.jupiter.api.Assertions.assertTrue(Assertions.java:183)
+	at spl.lae.LinearAlgebraEngineTestLiya.testGetWorkerReport_ContainsWorkerInfo(LinearAlgebraEngineTestLiya.java:398)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+]]></failure>
+  </testcase>
+  <testcase name="testMultiply_IdentityMatrix_ReturnsOriginal" classname="spl.lae.LinearAlgebraEngineTestLiya" time="0.001"/>
 </testsuite>

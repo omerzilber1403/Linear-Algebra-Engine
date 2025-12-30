@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="memory.SharedVectorLockingTest" time="1.135" tests="5" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="memory.SharedVectorLockingTest" time="1.017" tests="5" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="25"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-25\bin"/>
-    <property name="sun.java.command" value="C:\Users\omerz\AppData\Local\Temp\surefire12105385540899574412\surefirebooter-20251225175054397_3.jar C:\Users\omerz\AppData\Local\Temp\surefire12105385540899574412 2025-12-25T17-50-54_146-jvmRun1 surefire-20251225175054397_1tmp surefire_0-20251225175054397_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\omerz\AppData\Local\Temp\surefire15460294798653881020\surefirebooter-20251230145319181_3.jar C:\Users\omerz\AppData\Local\Temp\surefire15460294798653881020 2025-12-30T14-53-19_046-jvmRun1 surefire-20251230145319181_1tmp surefire_0-20251230145319181_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="test" value="SharedVectorLockingTest"/>
     <property name="surefire.test.class.path" value="C:\Users\omerz\Documents\Uni\Systems\Assignments\Assignment2\LAE\target\test-classes;C:\Users\omerz\Documents\Uni\Systems\Assignments\Assignment2\LAE\target\classes;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter\5.10.2\junit-jupiter-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\omerz\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\omerz\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\omerz\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.17.1\jackson-databind-2.17.1.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.17.1\jackson-annotations-2.17.1.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.17.1\jackson-core-2.17.1.jar;"/>
@@ -31,7 +31,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\omerz\AppData\Local\Temp\surefire12105385540899574412\surefirebooter-20251225175054397_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\omerz\AppData\Local\Temp\surefire15460294798653881020\surefirebooter-20251230145319181_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="25.0.1+8-LTS-27"/>
@@ -60,9 +60,9 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="69.0"/>
   </properties>
-  <testcase name="testWriteLockExclusiveAccess" classname="memory.SharedVectorLockingTest" time="0.482"/>
-  <testcase name="testMultipleReadLocksDoNotBlock" classname="memory.SharedVectorLockingTest" time="0.009"/>
-  <testcase name="testMultipleSimultaneousReadLocks" classname="memory.SharedVectorLockingTest" time="0.11"/>
-  <testcase name="testWriteLockBlocksReadLock" classname="memory.SharedVectorLockingTest" time="0.231"/>
-  <testcase name="testReadLockBlocksWriteLock" classname="memory.SharedVectorLockingTest" time="0.214"/>
+  <testcase name="testWriteLockExclusiveAccess" classname="memory.SharedVectorLockingTest" time="0.445"/>
+  <testcase name="testMultipleReadLocksDoNotBlock" classname="memory.SharedVectorLockingTest" time="0.006"/>
+  <testcase name="testMultipleSimultaneousReadLocks" classname="memory.SharedVectorLockingTest" time="0.106"/>
+  <testcase name="testWriteLockBlocksReadLock" classname="memory.SharedVectorLockingTest" time="0.21"/>
+  <testcase name="testReadLockBlocksWriteLock" classname="memory.SharedVectorLockingTest" time="0.206"/>
 </testsuite>

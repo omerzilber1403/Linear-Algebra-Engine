@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="memory.SharedVectorLockDisciplineTest" time="0.195" tests="14" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="memory.SharedVectorLockDisciplineTest" time="0.042" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="25"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,9 +15,9 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-25\bin"/>
-    <property name="sun.java.command" value="C:\Users\omerz\AppData\Local\Temp\surefire6891871999324794710\surefirebooter-20251225175802684_3.jar C:\Users\omerz\AppData\Local\Temp\surefire6891871999324794710 2025-12-25T17-58-02_444-jvmRun1 surefire-20251225175802684_1tmp surefire_0-20251225175802684_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\omerz\AppData\Local\Temp\surefire5987546887922750222\surefirebooter-20251230145059707_3.jar C:\Users\omerz\AppData\Local\Temp\surefire5987546887922750222 2025-12-30T14-50-59_574-jvmRun1 surefire-20251230145059707_1tmp surefire_0-20251230145059707_2tmp"/>
     <property name="jdk.debug" value="release"/>
-    <property name="test" value="SharedVectorLockDisciplineTest"/>
+    <property name="test" value="SharedVectorLockDisciplineTest#testAddConcurrentNoDeadlock"/>
     <property name="surefire.test.class.path" value="C:\Users\omerz\Documents\Uni\Systems\Assignments\Assignment2\LAE\target\test-classes;C:\Users\omerz\Documents\Uni\Systems\Assignments\Assignment2\LAE\target\classes;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter\5.10.2\junit-jupiter-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\omerz\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\omerz\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\omerz\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\omerz\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.17.1\jackson-databind-2.17.1.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.17.1\jackson-annotations-2.17.1.jar;C:\Users\omerz\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.17.1\jackson-core-2.17.1.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="user.home" value="C:\Users\omerz"/>
@@ -31,7 +31,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\omerz\AppData\Local\Temp\surefire6891871999324794710\surefirebooter-20251225175802684_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\omerz\AppData\Local\Temp\surefire5987546887922750222\surefirebooter-20251230145059707_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="25.0.1+8-LTS-27"/>
@@ -60,18 +60,5 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="69.0"/>
   </properties>
-  <testcase name="testVecMatMulNullMatrixReleasesLock" classname="memory.SharedVectorLockDisciplineTest" time="0.055"/>
-  <testcase name="testDotSameOrientationReleasesLocks" classname="memory.SharedVectorLockDisciplineTest" time="0.008"/>
-  <testcase name="testDotLengthMismatchReleasesLocks" classname="memory.SharedVectorLockDisciplineTest" time="0.006"/>
-  <testcase name="testAddOrientationMismatchReleasesLocks" classname="memory.SharedVectorLockDisciplineTest" time="0.01"/>
-  <testcase name="testVecMatMulWrongMatrixOrientationReleasesLock" classname="memory.SharedVectorLockDisciplineTest" time="0.003"/>
-  <testcase name="testVecMatMulEmptyMatrixReleasesLock" classname="memory.SharedVectorLockDisciplineTest" time="0.003"/>
-  <testcase name="testAddLengthMismatchReleasesLocks" classname="memory.SharedVectorLockDisciplineTest" time="0.005"/>
-  <testcase name="testVecMatMulDimensionMismatchReleasesLock" classname="memory.SharedVectorLockDisciplineTest" time="0.004"/>
-  <testcase name="testDotSuccessCompletes" classname="memory.SharedVectorLockDisciplineTest" time="0.005"/>
-  <testcase name="testVecMatMulConcurrentNoDeadlock" classname="memory.SharedVectorLockDisciplineTest" time="0.003"/>
-  <testcase name="testVecMatMulSuccessCompletes" classname="memory.SharedVectorLockDisciplineTest" time="0.002"/>
-  <testcase name="testVecMatMulWrongVectorOrientationReleasesLock" classname="memory.SharedVectorLockDisciplineTest" time="0.002"/>
-  <testcase name="testAddSuccessCompletes" classname="memory.SharedVectorLockDisciplineTest" time="0.01"/>
-  <testcase name="testAddConcurrentNoDeadlock" classname="memory.SharedVectorLockDisciplineTest" time="0.005"/>
+  <testcase name="testAddConcurrentNoDeadlock" classname="memory.SharedVectorLockDisciplineTest" time="0.022"/>
 </testsuite>

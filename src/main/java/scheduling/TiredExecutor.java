@@ -30,44 +30,53 @@ public class TiredExecutor {
         if (task == null) {
             throw new IllegalArgumentException("task is null");
         }
-
-        while (true) {
-            final TiredThread worker;
-            try {
-                worker = idleMinHeap.take(); 
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new IllegalStateException("submit interrupted", e);
+        
+        boolean someoneAlive = false;
+        for (TiredThread w : workers) {
+            if (w.isAlive()) {
+                someoneAlive = true;
+                break;
             }
+        }
+        if (!someoneAlive) {
+            throw new IllegalStateException("Executor has been shut down");
+        }
 
-            inFlight.incrementAndGet();
+        final TiredThread worker;
+        try {
+            worker = idleMinHeap.take(); 
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("submit interrupted", e);
+        }
 
-            Runnable wrapped = () -> {
-                try {
-                    task.run();
-                } finally {
-                    idleMinHeap.add(worker);
+        inFlight.incrementAndGet();
 
-                    if (inFlight.decrementAndGet() == 0) {
-                        synchronized (this) {
-                            this.notifyAll();
-                        }
-                    }
-                }
-            };
-
+        Runnable wrapped = () -> {
             try {
-                worker.newTask(wrapped);
-                return;                 
-            } catch (RuntimeException ex) {
+                task.run();
+            } finally {
                 idleMinHeap.add(worker);
+
                 if (inFlight.decrementAndGet() == 0) {
                     synchronized (this) {
                         this.notifyAll();
                     }
                 }
-                throw ex;
             }
+        };
+
+        try {
+            worker.newTask(wrapped);
+            return;                 
+        } catch (RuntimeException ex) {
+            idleMinHeap.add(worker);
+            if (inFlight.decrementAndGet() == 0) {
+                synchronized (this) {
+                    this.notifyAll();
+                }
+            }
+            throw ex;
         }
     }
 
@@ -94,10 +103,18 @@ public class TiredExecutor {
 
     public void shutdown() throws InterruptedException {
         // TODO
-        for (TiredThread worker : workers) {
-            worker.shutdown();
+        synchronized (this){
+            while (inFlight.get() > 0) {
+                try {
+                    this.wait();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw e;
+                }
+            }
         }
         for (TiredThread worker : workers) {
+            worker.shutdown();
             worker.join();
         }
         idleMinHeap.clear();
@@ -105,20 +122,44 @@ public class TiredExecutor {
 
     public synchronized String getWorkerReport() {
         // TODO: return readable statistics for each worker
-        StringBuilder sb = new StringBuilder();
+        StringBuilder report = new StringBuilder();
+        report.append("\n========== Worker Report ==========\n");
         for (TiredThread w : workers) {
-            sb.append("Worker ")
-            .append(w.getWorkerId())
-            .append(": busy=")
-            .append(w.isBusy())
-            .append(", used=")
-            .append(w.getTimeUsed())
-            .append(", idle=")
-            .append(w.getTimeIdle())
-            .append(", fatigue=")
-            .append(w.getFatigue())
-            .append("\n");
+            double usedMs = w.getTimeUsed() / 1_000_000.0;
+            double idleMs = w.getTimeIdle() / 1_000_000.0;
+            report.append("Worker ")
+                .append(w.getWorkerId())
+                .append(" | fatigue=")
+                .append(w.getFatigue())
+                .append(" | used=")
+                .append(usedMs).append(" ms")
+                .append(" | idle=")
+                .append(idleMs).append(" ms")
+                .append('\n');
         }
-        return sb.toString(); 
+
+        report.append("---------------------------------------\n");
+        report.append("Fairness: ").append(calculateFairness()).append('\n');
+        report.append("=======================================\n");
+
+        return report.toString();
+    }
+
+    private double calculateFairness() {
+        double total = 0.0;
+
+        for (TiredThread w : workers) {
+            total += w.getFatigue();
+        }
+
+        double average = total / workers.length;
+        double fairness = 0.0;
+
+        for (TiredThread w : workers) {
+            double deviation = w.getFatigue() - average;
+            fairness += deviation * deviation;
+        }
+
+        return fairness;
     }
 }
