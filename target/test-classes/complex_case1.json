@@ -1,0 +1,31 @@
+{
+  "testName": "CASE 1: TRANSPOSE(ADD(A, NEGATE(B)))",
+  "description": "Complex nested operation: transpose of (A + (-B))",
+  "threadCount": 3,
+  "operator": "T",
+  "operands": [
+    {
+      "operator": "+",
+      "operands": [
+        [
+          [1.0, 2.0, 3.0],
+          [4.0, 5.0, 6.0]
+        ],
+        {
+          "operator": "-",
+          "operands": [
+            [
+              [6.0, 5.0, 4.0],
+              [3.0, 2.0, 1.0]
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "expected": [
+    [-5.0, 1.0],
+    [-3.0, 3.0],
+    [-1.0, 5.0]
+  ]
+}

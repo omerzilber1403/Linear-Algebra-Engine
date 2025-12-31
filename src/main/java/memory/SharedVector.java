@@ -5,8 +5,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 public class SharedVector {
 
-    private double[] vector; // [1,2,3]
-    private VectorOrientation orientation; // COLUMN_MAJOR
+    private double[] vector; 
+    private VectorOrientation orientation; 
     private ReadWriteLock lock = new java.util.concurrent.locks.ReentrantReadWriteLock();
 
     public SharedVector(double[] vector, VectorOrientation orientation) {
@@ -14,7 +14,7 @@ public class SharedVector {
         if (vector == null) {
             throw new NullPointerException("vector is null");
         }
-        this.vector = vector.clone();
+        this.vector = vector;
         if (orientation == null) {
             throw new IllegalArgumentException("Orientation cannot be null.");
         }
@@ -30,6 +30,9 @@ public class SharedVector {
 
     public double get(int index) {
         // TODO: return element at index (read-locked)
+
+        // A read lock is required to prevent another thread
+        // from modifying the vector while it is being read
         lock.readLock().lock();
         try {
             return vector[index];
@@ -40,6 +43,9 @@ public class SharedVector {
 
     public int length() {
         // TODO: return vector length
+
+        // A read lock is required to prevent another thread
+        // from modifying the vector while its length is read
         lock.readLock().lock();
         try {   
             return vector.length;
@@ -50,6 +56,9 @@ public class SharedVector {
 
     public VectorOrientation getOrientation() {
         // TODO: return vector orientation
+
+        // A read lock is required to prevent another thread
+        // from changing the orientation while it is being read
         lock.readLock().lock();
         try {   
             return orientation;
@@ -60,26 +69,39 @@ public class SharedVector {
 
     public void writeLock() {
         // TODO: acquire write lock
+
+        // Allows a thread to acquire exclusive access
+        // in order to perform multiple write operations safely
         lock.writeLock().lock();
     }
 
     public void writeUnlock() {
         // TODO: release write lock
+
+        // Releases the write lock previously acquired by a thread
         lock.writeLock().unlock();
     }
 
     public void readLock() {
         // TODO: acquire read lock
+
+        // Allows a thread to safely perform multiple
+        // read operations without concurrent modification
         lock.readLock().lock();
     }
 
     public void readUnlock() {
         // TODO: release read lock
+
+        // Releases the read lock previously acquired by a thread
         lock.readLock().unlock();
     }
 
     public void transpose() {
         // TODO: transpose vector
+
+        // A write lock is required because this thread modifies
+        // a shared field, and other threads must not access it concurrently
         lock.writeLock().lock();
         try {
             if (orientation == VectorOrientation.ROW_MAJOR) {
@@ -93,7 +115,12 @@ public class SharedVector {
     }
     public void add(SharedVector other) {
         // TODO: add two vectors
+
+        // A write lock is required because this thread modifies
+        // the current vector
         lock.writeLock().lock();
+        // A read lock is required on the other vector to prevent
+        // another thread from modifying it while its values are read
         other.readLock();
         try {
             if (other.length() != this.length()) {
@@ -109,6 +136,7 @@ public class SharedVector {
                 vector[i] += other.vector[i];
             }
         } finally {
+            // Locks are always released to avoid deadlock between threads
             other.readUnlock();
             lock.writeLock().unlock();
         }
@@ -116,6 +144,9 @@ public class SharedVector {
 
     public void negate() {
         // TODO: negate vector
+
+        // A write lock is required because this thread
+        // modifies all elements of the shared vector
         lock.writeLock().lock();
         try {
             if (vector == null) {
@@ -131,6 +162,9 @@ public class SharedVector {
 
     public double dot(SharedVector other) {
         // TODO: compute dot product (row · column)
+
+        // Read locks are required to prevent either thread
+        // from modifying the vectors while computing the dot product
         lock.readLock().lock();
         other.readLock();  
         try {
@@ -153,6 +187,9 @@ public class SharedVector {
 
     public void vecMatMul(SharedMatrix matrix) {
         // TODO: compute row-vector × matrix
+
+        // A read lock is required to prevent another thread
+        // from modifying the vector while the multiplication is computed
         lock.readLock().lock();
         double[] newVector;
         try {
@@ -175,6 +212,8 @@ public class SharedVector {
         } finally {
             lock.readLock().unlock();
         }
+        // A write lock is required to prevent other threads
+        // from accessing the vector while it is being replaced
         lock.writeLock().lock(); 
         try {
             this.vector = newVector;

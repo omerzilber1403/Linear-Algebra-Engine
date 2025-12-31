@@ -1,0 +1,17 @@
+{
+  "testName": "TRANSPOSE operation produces correct result",
+  "description": "Tests transpose of 2x3 matrix to 3x2: [[1,2,3],[4,5,6]] -> [[1,4],[2,5],[3,6]]",
+  "threadCount": 2,
+  "operator": "T",
+  "operands": [
+    [
+      [1.0, 2.0, 3.0],
+      [4.0, 5.0, 6.0]
+    ]
+  ],
+  "expected": [
+    [1.0, 4.0],
+    [2.0, 5.0],
+    [3.0, 6.0]
+  ]
+}
