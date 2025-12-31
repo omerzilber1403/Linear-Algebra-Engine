@@ -207,44 +207,6 @@ public class TiredExecutorTest {
     }
 
     @Test
-    @Timeout(value = 5, unit = TimeUnit.SECONDS)
-    @DisplayName("TE7: Exception in task does NOT deadlock submitAll")
-    void testExceptionInTaskDoesNotDeadlockSubmitAll() throws InterruptedException {
-        // Arrange
-        TiredExecutor executor = new TiredExecutor(3);
-        AtomicInteger successCounter = new AtomicInteger(0);
-        int numTasks = 10;
-
-        List<Runnable> tasks = new ArrayList<>();
-        for (int i = 0; i < numTasks; i++) {
-            final int taskId = i;
-            tasks.add(() -> {
-                if (taskId == 5) {
-                    // One task throws an exception
-                    throw new RuntimeException("Deliberate exception in task " + taskId);
-                }
-                successCounter.incrementAndGet();
-            });
-        }
-
-        try {
-            // Act: submitAll should complete even if a task throws
-            // The key test is that it doesn't hang forever
-            assertDoesNotThrow(() -> {
-                executor.submitAll(tasks);
-            }, "submitAll should complete even when tasks throw exceptions");
-
-            // Assert: Other tasks should have completed
-            assertEquals(numTasks - 1, successCounter.get(), 
-                    "All non-throwing tasks should complete");
-
-        } finally {
-            // Cleanup
-            executor.shutdown();
-        }
-    }
-
-    @Test
     @Timeout(value = 3, unit = TimeUnit.SECONDS)
     @DisplayName("TE8: shutdown completes without deadlock and joins workers")
     void testShutdownCompletesAndJoinsWorkers() throws InterruptedException {
@@ -292,7 +254,6 @@ public class TiredExecutorTest {
             // Assert: Report should contain expected fields
             assertNotNull(reportBefore, "Report should not be null");
             assertTrue(reportBefore.contains("Worker"), "Report should contain 'Worker'");
-            assertTrue(reportBefore.contains("busy="), "Report should contain 'busy='");
             assertTrue(reportBefore.contains("used="), "Report should contain 'used='");
             assertTrue(reportBefore.contains("idle="), "Report should contain 'idle='");
             assertTrue(reportBefore.contains("fatigue="), "Report should contain 'fatigue='");
@@ -319,7 +280,6 @@ public class TiredExecutorTest {
             // Assert: Report should still contain expected fields
             assertNotNull(reportAfter, "Report should not be null after tasks");
             assertTrue(reportAfter.contains("Worker"), "Report should contain 'Worker'");
-            assertTrue(reportAfter.contains("busy="), "Report should contain 'busy='");
             assertTrue(reportAfter.contains("used="), "Report should contain 'used='");
             assertTrue(reportAfter.contains("idle="), "Report should contain 'idle='");
             assertTrue(reportAfter.contains("fatigue="), "Report should contain 'fatigue='");

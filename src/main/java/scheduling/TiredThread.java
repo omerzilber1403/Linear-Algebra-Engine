@@ -83,6 +83,7 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
         } catch (Exception e) {
             // TODO: handle exception
             // No InterruptedException is activaded in the proccess
+            return;
         }
     }
 

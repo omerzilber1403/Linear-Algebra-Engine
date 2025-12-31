@@ -35,8 +35,7 @@ public class LinearAlgebraEngine {
             try {
                 executor.shutdown();
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException(e);
+                //proccess should never interrupt
             }
         }
     }

@@ -30,24 +30,13 @@ public class TiredExecutor {
         if (task == null) {
             throw new IllegalArgumentException("task is null");
         }
-        
-        boolean someoneAlive = false;
-        for (TiredThread w : workers) {
-            if (w.isAlive()) {
-                someoneAlive = true;
-                break;
-            }
-        }
-        if (!someoneAlive) {
-            throw new IllegalStateException("Executor has been shut down");
-        }
 
         final TiredThread worker;
         try {
             worker = idleMinHeap.take(); 
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("submit interrupted", e);
+            //the proccess should not interrupted
+            return;
         }
 
         inFlight.incrementAndGet();
@@ -70,9 +59,11 @@ public class TiredExecutor {
             worker.newTask(wrapped);
             return;                 
         } catch (RuntimeException ex) {
+            // newTask() failed, so wrapped was never queued and will never run
+            // Therefore its finally block will never execute - we must clean up here
             idleMinHeap.add(worker);
             if (inFlight.decrementAndGet() == 0) {
-                synchronized (this) {
+                synchronized (this) {   
                     this.notifyAll();
                 }
             }
@@ -95,7 +86,8 @@ public class TiredExecutor {
                 try {
                     this.wait();
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                    //the proccess never interrupted
+                    return;
                 }
             }
         }
