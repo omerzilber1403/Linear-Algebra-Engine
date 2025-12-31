@@ -75,10 +75,15 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
      */
     public void shutdown() {
        // TODO
-       if (!alive.compareAndSet(true, false)){
-        return;
-       }
-       handoff.offer(POISON_PILL); 
+        if (!alive.compareAndSet(true, false)){
+            return;
+        }
+        try {
+            handoff.put(POISON_PILL); 
+        } catch (Exception e) {
+            // TODO: handle exception
+            // No InterruptedException is activaded in the proccess
+        }
     }
 
     @Override

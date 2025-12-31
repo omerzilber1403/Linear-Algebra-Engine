@@ -103,16 +103,6 @@ public class TiredExecutor {
 
     public void shutdown() throws InterruptedException {
         // TODO
-        synchronized (this){
-            while (inFlight.get() > 0) {
-                try {
-                    this.wait();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw e;
-                }
-            }
-        }
         for (TiredThread worker : workers) {
             worker.shutdown();
             worker.join();
