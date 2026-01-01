@@ -57,7 +57,6 @@ public class TiredExecutor {
 
         try {
             worker.newTask(wrapped);
-            return;                 
         } catch (RuntimeException ex) {
             // newTask() failed, so wrapped was never queued and will never run
             // Therefore its finally block will never execute - we must clean up here
